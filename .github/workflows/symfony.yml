@@ -3,7 +3,7 @@ name: Tests
 on: [ push, pull_request ]
 jobs:
     symfony:
-        name: Symfony (PHP ${{ matrix.php-versions }})
+        name: "Tests"
         runs-on: ${{ matrix.operating-system }}
 
         # Docs: https://docs.github.com/en/actions/using-containerized-services

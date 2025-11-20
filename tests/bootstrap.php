@@ -27,10 +27,12 @@ $runCommand = function (string $name, array $options = []) use ($application) {
     $application->run($input);
 };
 
-$runCommand('doctrine:database:drop', [
-    '--force' => 1,
-    '--no-interaction' => true
-]);
+try {
+	$runCommand('doctrine:database:drop', [
+		'--force'          => 1,
+		'--no-interaction' => true
+	]);
+}catch (\Doctrine\DBAL\Exception\ConnectionException){}
 $runCommand('doctrine:database:create', [
     '--no-interaction' => true
 ]);
