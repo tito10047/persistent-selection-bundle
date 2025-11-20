@@ -66,6 +66,7 @@ return static function (ContainerConfigurator $container): void {
     // --- SelectionManager ---
     $services
         ->set(SelectionManager::class)
+		->public()
             ->arg('$storage', service(StorageInterface::class))
             ->arg('$loaders', tagged_iterator('batch_selection.identity_loader'))
             ->arg('$normalizers', tagged_iterator('batch_selection.identifier_normalizer'))

@@ -4,6 +4,9 @@ namespace Tito10047\BatchSelectionBundle\Storage;
 
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
 
 /**
@@ -19,7 +22,12 @@ use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
  */
 class SessionStorage implements StorageInterface
 {
-	private const SESSION_PREFIX = '_batch_selection_';
+    private const SESSION_PREFIX = '_batch_selection_';
+
+    /**
+     * Fallback session used when there is no active HTTP session available (e.g. CLI/tests).
+     */
+    private ?SessionInterface $fallbackSession = null;
 
 	public function __construct(
 		private readonly RequestStack $requestStack
@@ -84,14 +92,23 @@ class SessionStorage implements StorageInterface
 		return SelectionMode::tryFrom($value) ?? SelectionMode::INCLUDE;
 	}
 
-	/**
-	 * Helper to retrieve the session service.
-	 * Using RequestStack allows usage in services where the session might not be started yet.
-	 */
-	private function getSession(): SessionInterface
-	{
-		return $this->requestStack->getSession();
-	}
+ /**
+  * Helper to retrieve the session service.
+  * Using RequestStack allows usage in services where the session might not be started yet.
+  */
+ private function getSession(): SessionInterface
+ {
+     try {
+         return $this->requestStack->getSession();
+     } catch (SessionNotFoundException $e) {
+         // No HTTP session available (likely CLI/tests). Use in-memory fallback session.
+         if ($this->fallbackSession === null) {
+             $this->fallbackSession = new Session(new MockArraySessionStorage());
+         }
+
+         return $this->fallbackSession;
+     }
+ }
 
 	/**
 	 * Generates a namespaced key for the session.

@@ -21,7 +21,7 @@ final class SelectionManager implements SelectionManagerInterface{
 		$loader    = $this->findLoader($source);
 
 		$selection = new Selection($key, $identifierPath, $this->storage, $normalizer);
-		$selection->rememberAll($loader->loadAllIdentifiers($source, $identifierPath));
+		$selection->rememberAll($loader->loadAllIdentifiers($normalizer, $source, $identifierPath));
 
 		return $selection;
 	}

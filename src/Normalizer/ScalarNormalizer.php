@@ -5,7 +5,7 @@ namespace Tito10047\BatchSelectionBundle\Normalizer;
 class ScalarNormalizer implements IdentifierNormalizerInterface{
 
 	public function supports(mixed $item): bool {
-		return is_scalar($item);
+		return is_scalar($item) && !class_exists($item);
 	}
 
 	public function normalize(mixed $item, ?string $identifierPath): string|int {

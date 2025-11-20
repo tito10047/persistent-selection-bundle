@@ -7,7 +7,7 @@ framework:
         enabled: true
         cookie_secure: auto
         cookie_samesite: lax
-        handler_id: null
+
     http_method_override: false
     handle_all_throwables: true
     http_client:
