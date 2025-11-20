@@ -6,8 +6,6 @@ namespace Tito10047\BatchSelectionBundle\Loader;
 
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\Query\Parser;
-use Doctrine\Persistence\ManagerRegistry;
 use RuntimeException;
 use InvalidArgumentException;
 
@@ -17,10 +15,6 @@ use InvalidArgumentException;
  */
 class DoctrineQueryLoader implements IdentityLoaderInterface
 {
-	public function __construct(
-		private readonly ManagerRegistry $doctrine,
-	) {
-	}
 
 	/**
 	 * @inheritDoc
@@ -125,6 +119,7 @@ class DoctrineQueryLoader implements IdentityLoaderInterface
 	{
 		$AST = $query->getAST();
 
+		/** @var Query\AST\IdentificationVariableDeclaration $from */
 		$from = $AST->fromClause->identificationVariableDeclarations[0] ?? null;
 		if ($from === null || $from->rangeVariableDeclaration === null) {
 			throw new RuntimeException('Nepodarilo sa zistiť root entitu z DQL dotazu.');

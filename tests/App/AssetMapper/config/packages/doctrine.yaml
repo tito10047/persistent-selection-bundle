@@ -19,9 +19,13 @@ doctrine:
                 dir: '%kernel.project_dir%/tests/App/AssetMapper/Src/Entity'
                 prefix: 'Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Entity'
                 alias: App
+        report_fields_where_declared: true
 
 when@test:
     doctrine:
         dbal:
             # "TEST_TOKEN" is typically set by ParaTest
-            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+            connections:
+                default:
+                    use_savepoints: true
+                    dbname_suffix: '_test%env(default::TEST_TOKEN)%'

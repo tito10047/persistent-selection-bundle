@@ -4,6 +4,12 @@
          colors="true"
          bootstrap="tests/bootstrap.php"
 >
+    <php>
+        <ini name="display_errors" value="1"/>
+        <ini name="error_reporting" value="-1"/>
+        <server name="SHELL_VERBOSITY" value="-1"/>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
+    </php>
     <testsuites>
         <testsuite name="Ace Bundle Test Suite">
             <directory>tests</directory>
@@ -16,6 +22,6 @@
     </source>
     <extensions>
         <!-- use this with PHPUnit 10 or newer -->
-        <bootstrap class="Symfony\Component\Panther\ServerExtension"/>
+        <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
     </extensions>
 </phpunit>
