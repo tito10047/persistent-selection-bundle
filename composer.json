@@ -49,6 +49,11 @@
       "require": "6.4.*"
     }
   },
+  "scripts" : {
+    "test": [
+      "phpunit"
+    ]
+  },
   "require-dev": {
     "dama/doctrine-test-bundle": "^8.4",
     "pagerfanta/pagerfanta": "^3.6",

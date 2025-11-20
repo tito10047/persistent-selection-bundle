@@ -81,4 +81,4 @@ jobs:
             -   name: Execute tests (Unit and Feature tests) via PHPUnit
                 env:
                     DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/symfony
-                run: vendor/bin/phpunit
+                run: "composer test"
