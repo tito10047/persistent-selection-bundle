@@ -78,9 +78,6 @@ jobs:
             -   name: set sql mode
                 run: mysql --protocol=tcp -h localhost -P ${{ job.services.mysql.ports['3306'] }}  -uroot -psymfony -e "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"
 
-            -   name: Install PHPUnit
-                run: simple-phpunit install
-
             -   name: Execute tests (Unit and Feature tests) via PHPUnit
                 env:
                     DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/symfony
