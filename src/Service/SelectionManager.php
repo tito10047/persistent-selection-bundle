@@ -2,48 +2,41 @@
 
 namespace Tito10047\BatchSelectionBundle\Service;
 
+use Tito10047\BatchSelectionBundle\Exception\NormalizationFailedException;
 use Tito10047\BatchSelectionBundle\Loader\IdentityLoaderInterface;
 use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 use Tito10047\BatchSelectionBundle\Storage\StorageInterface;
 
-final class SelectionManager implements SelectionManagerInterface{
+final class SelectionManager implements SelectionManagerInterface {
 
 	public function __construct(
-		private readonly StorageInterface $storage,
+		private readonly StorageInterface              $storage,
+		private readonly IdentifierNormalizerInterface $normalizer,
+		private readonly ?string                       $identifierPath,
 		/** @var IdentityLoaderInterface[] */
-		private readonly iterable         $loaders,
-		/** @var IdentifierNormalizerInterface[] */
-		private readonly iterable $normalizers
-	) { }
+		private readonly iterable                      $loaders,
+	) {
+	}
 
-	public function registerSource(string $key, mixed $source, string $type, ?string $identifierPath = null): SelectionInterface {
-		$normalizer = $this->findNormalizer($type);
-		$loader    = $this->findLoader($source);
+	public function registerSource(string $key, mixed $source): SelectionInterface {
+		$loader = $this->findLoader($source);
 
-		$selection = new Selection($key, $identifierPath, $this->storage, $normalizer);
-		$selection->rememberAll($loader->loadAllIdentifiers($normalizer, $source, $identifierPath));
+		$selection = new Selection($key, $this->identifierPath, $this->storage, $this->normalizer);
+
+		foreach ($source as $item) {
+			if (!$this->normalizer->supports($item)) {
+				throw new NormalizationFailedException('Item is not an object.');
+			}
+		}
+		$selection->rememberAll($loader->loadAllIdentifiers($this->normalizer, $source, $this->identifierPath));
 
 		return $selection;
 	}
 
-	public function getSelection(string $key, string $type, ?string $identifierPath = null): SelectionInterface {
-		$normalizer = $this->findNormalizer($type);
-		return new Selection($key, $identifierPath, $this->storage, $normalizer);
+	public function getSelection(string $key): SelectionInterface {
+		return new Selection($key, $this->identifierPath, $this->storage, $this->normalizer);
 	}
 
-	private function findNormalizer(string $type): IdentifierNormalizerInterface {
-		$normalizer = null;
-		foreach ($this->normalizers as $_normalizer) {
-			if ($_normalizer->supports($type)) {
-				$normalizer = $_normalizer;
-				break;
-			}
-		}
-		if ($normalizer === null) {
-			throw new \InvalidArgumentException('No suitable normalizer found for the given source.');
-		}
-		return $normalizer;
-	}
 
 	private function findLoader(mixed $source): mixed {
 		$loader = null;

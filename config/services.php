@@ -3,6 +3,8 @@
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Tito10047\BatchSelectionBundle\DependencyInjection\Compiler\AutoTagIdentifierNormalizersPass;
 use Tito10047\BatchSelectionBundle\DependencyInjection\Compiler\AutoTagIdentityLoadersPass;
+use Tito10047\BatchSelectionBundle\Normalizer\ArrayNormalizer;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\abstract_arg;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use Tito10047\BatchSelectionBundle\Support\TaggedServiceCollection;
@@ -31,12 +33,20 @@ return static function (ContainerConfigurator $container): void {
 
     // --- Normalizéry ---
     $services
-        ->set(ScalarNormalizer::class)
+        ->set('batch_selection.normalizer.scalar',ScalarNormalizer::class)
+			->public()
             ->tag(AutoTagIdentifierNormalizersPass::TAG)
     ;
 
     $services
-        ->set(ObjectNormalizer::class)
+        ->set('batch_selection.normalizer.object',ObjectNormalizer::class)
+			->public()
+            ->tag(AutoTagIdentifierNormalizersPass::TAG)
+    ;
+
+    $services
+        ->set('batch_selection.normalizer.array', ArrayNormalizer::class)
+			->public()
             ->tag(AutoTagIdentifierNormalizersPass::TAG)
     ;
 
@@ -58,19 +68,19 @@ return static function (ContainerConfigurator $container): void {
 
     // --- Storage ---
     $services
-        ->set(SessionStorage::class)
+        ->set('batch_selection.storage.session',SessionStorage::class)
             ->arg('$requestStack', service(RequestStack::class))
     ;
     $services->alias(StorageInterface::class, SessionStorage::class);
 
     // --- SelectionManager ---
     $services
-        ->set(SelectionManager::class)
+        ->set('batch_selection.manager.default',SelectionManager::class)
 		->public()
             ->arg('$storage', service(StorageInterface::class))
             ->arg('$loaders', tagged_iterator('batch_selection.identity_loader'))
-            ->arg('$normalizers', tagged_iterator('batch_selection.identifier_normalizer'))
+            ->arg('$normalizer', abstract_arg('normalizer'))
+            ->arg('$identifierPath', abstract_arg('identifierPath'))
     ;
-    $services->alias(SelectionManagerInterface::class, SelectionManager::class);
 
 };

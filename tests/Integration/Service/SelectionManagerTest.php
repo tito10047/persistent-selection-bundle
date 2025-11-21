@@ -2,11 +2,16 @@
 
 namespace Tito10047\BatchSelectionBundle\Tests\Integration\Service;
 
+use PHPUnit\Framework\Attributes\TestWith;
+use stdClass;
+use Tito10047\BatchSelectionBundle\Exception\NormalizationFailedException;
 use Tito10047\BatchSelectionBundle\Service\SelectionInterface;
 use Tito10047\BatchSelectionBundle\Service\SelectionManagerInterface;
+use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\ServiceHelper;
 use Tito10047\BatchSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
 use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Support\TestList;
 use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
+use function Zenstruck\Foundry\object;
 
 class SelectionManagerTest extends AssetMapperKernelTestCase
 {
@@ -15,24 +20,24 @@ class SelectionManagerTest extends AssetMapperKernelTestCase
         $container = self::getContainer();
 
         /** @var SelectionManagerInterface $manager */
-        $manager = $container->get(SelectionManagerInterface::class);
+        $manager = $container->get('batch_selection.manager.scalar');
         $this->assertInstanceOf(SelectionManagerInterface::class, $manager);
 
         // Use the test normalizer that supports type "array" and requires identifierPath
-        $selection = $manager->getSelection('test_key', 'array', 'id');
+        $selection = $manager->getSelection('test_key');
         $this->assertInstanceOf(SelectionInterface::class, $selection);
 
         // Initially nothing selected
         $this->assertFalse($selection->isSelected( 1));
 
         // Select single item and verify
-        $selection->select(['id' => 1]);
+        $selection->select( 1);
         $this->assertTrue($selection->isSelected(1));
 
         // Select multiple
         $selection->selectMultiple([
-            ['id' => 2],
-            ['id' => 3],
+            2,
+            3,
         ]);
 
         $this->assertTrue($selection->isSelected( 2));
@@ -43,7 +48,7 @@ class SelectionManagerTest extends AssetMapperKernelTestCase
         $this->assertSame([1, 2, 3], $ids);
 
         // Unselect one and verify
-        $selection->unselect(["id"=>2]);
+        $selection->unselect(2);
         $this->assertFalse($selection->isSelected( 2));
 
         $ids = $selection->getSelectedIdentifiers();
@@ -56,37 +61,57 @@ class SelectionManagerTest extends AssetMapperKernelTestCase
         $container = self::getContainer();
 
         /** @var SelectionManagerInterface $manager */
-        $manager = $container->get(SelectionManagerInterface::class);
+        $manager = $container->get('batch_selection.manager.default');
         $this->assertInstanceOf(SelectionManagerInterface::class, $manager);
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('No suitable loader found');
 
         // stdClass is not supported by any IdentityLoader in tests/app
-        $manager->registerSource('no_loader_key', new \stdClass(), 'array', 'id');
+        $manager->registerSource('no_loader_key', new \stdClass());
     }
 
-    public function testGetSelectionThrowsWhenNoNormalizer(): void
-    {
-        $container = self::getContainer();
+	public function testAutoBindManager():void {
 
-        /** @var SelectionManagerInterface $manager */
-        $manager = $container->get(SelectionManagerInterface::class);
-        $this->assertInstanceOf(SelectionManagerInterface::class, $manager);
+		$container = self::getContainer();
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('No suitable normalizer found for the given source.');
+		/** @var ServiceHelper $helper */
+		$helper = $container->get(ServiceHelper::class);
+		$this->assertInstanceOf(ServiceHelper::class, $helper);
 
-        // Type "unknown_type" is not supported by any IdentifierNormalizer in tests/app
-        $manager->getSelection('no_normalizer_key', \stdClass::class, 'id');
-    }
+		$manager = $helper->arraySelectionManager;
+		$this->assertInstanceOf(SelectionManagerInterface::class, $manager);
+
+
+		$data = [
+			['id' => 1, 'name' => 'A'],
+			['id' => 2, 'name' => 'B'],
+			['id' => 3, 'name' => 'C'],
+		];
+
+		$manager->registerSource("array_key",$data);
+	}
+
+	#[TestWith(['default',[['id' => 1, 'name' => 'A']]])]
+	#[TestWith(['scalar',[['id' => 1, 'name' => 'A']]])]
+	#[TestWith(['array',[new stdClass()]])]
+	public function testThrowExceptionOnBadNormalizer($service,$data):void {
+
+		$container = self::getContainer();
+
+		/** @var SelectionManagerInterface $manager */
+		$manager = $container->get('batch_selection.manager.'.$service);
+
+		$this->expectException(NormalizationFailedException::class);
+		$manager->registerSource("array_key_2",$data);
+	}
 
     public function testRegisterSourceLoadsAllInExcludeMode(): void
     {
         $container = self::getContainer();
 
         /** @var SelectionManagerInterface $manager */
-        $manager = $container->get(SelectionManagerInterface::class);
+        $manager = $container->get('batch_selection.manager.array');
         $this->assertInstanceOf(SelectionManagerInterface::class, $manager);
 
         $data = [
@@ -96,7 +121,7 @@ class SelectionManagerTest extends AssetMapperKernelTestCase
         ];
         $list = new TestList($data);
 
-        $selection = $manager->registerSource('reg_key', $list, 'array', 'id');
+        $selection = $manager->registerSource('reg_key', $list);
         $this->assertInstanceOf(SelectionInterface::class, $selection);
 
         // After registerSource -> rememberAll() should store all ids in ALL context.

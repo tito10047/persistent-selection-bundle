@@ -1,0 +1,10 @@
+batch_selection:
+    default:
+        normalizer: 'batch_selection.normalizer.object'
+        identifier_path: 'id'
+        storage: 'batch_selection.storage.session'
+    scalar:
+        normalizer: 'batch_selection.normalizer.scalar'
+    array:
+        normalizer: 'batch_selection.normalizer.array'
+        identifier_path: 'id'

@@ -8,6 +8,12 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use Tito10047\BatchSelectionBundle\DependencyInjection\Compiler\AutoTagIdentifierNormalizersPass;
 use Tito10047\BatchSelectionBundle\DependencyInjection\Compiler\AutoTagIdentityLoadersPass;
+use Tito10047\BatchSelectionBundle\Service\SelectionManager;
+use Tito10047\BatchSelectionBundle\Service\SelectionManagerInterface;
+use Tito10047\BatchSelectionBundle\Storage\StorageInterface;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
+use function Symfony\Component\String\u;
 
 /**
  * @link https://symfony.com/doc/current/bundles/best_practices.html
@@ -23,6 +29,29 @@ class BatchSelectionBundle extends AbstractBundle
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         $container->import('../config/services.php');
+		$services = $container->services();
+		foreach($config as $name=>$subConfig){
+			$normalizer = service($subConfig['normalizer']??'batch_selection.identity_loader');
+			$storage = service($subConfig['storage']??'batch_selection.storage.session');
+			$identifierPath = $subConfig['identifier_path']??null;
+			$propertyName = u($name)->camel()->toString();
+			$services
+				->set('batch_selection.manager.'.$name,SelectionManager::class)
+				->public()
+				->arg('$storage', $storage)
+				->arg('$loaders', tagged_iterator('batch_selection.identity_loader'))
+				->arg('$normalizer', $normalizer)
+				->arg('$identifierPath', $identifierPath)
+				;
+
+			// Umožniť named autowiring: SelectionManagerInterface $<name>Manager → batch_selection.manager.<name>
+			// Použijeme alias, nie bind – alias nevyhadzuje chybu, ak sa nikde nepoužije.
+//			dump(SelectionManagerInterface::class." {$propertyName}Manager");
+//			$services->bind(
+//				SelectionManagerInterface::class." {$propertyName}Manager",
+//				'batch_selection.manager.'.$name
+//			);
+		}
     }
 
     public function build(ContainerBuilder $container): void
