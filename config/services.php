@@ -77,10 +77,10 @@ return static function (ContainerConfigurator $container): void {
     $services
         ->set('batch_selection.manager.default',SelectionManager::class)
 		->public()
-            ->arg('$storage', service(StorageInterface::class))
+            ->arg('$storage', service('batch_selection.storage.session'))
             ->arg('$loaders', tagged_iterator('batch_selection.identity_loader'))
-            ->arg('$normalizer', abstract_arg('normalizer'))
-            ->arg('$identifierPath', abstract_arg('identifierPath'))
+            ->arg('$normalizer', service('batch_selection.normalizer.object'))
+            ->arg('$identifierPath', 'id')
 		->alias(SelectionManagerInterface::class, 'batch_selection.manager.default')
     ;
 

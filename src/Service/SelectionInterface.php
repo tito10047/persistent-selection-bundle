@@ -14,6 +14,11 @@ interface SelectionInterface {
 
 	public function unselect(mixed $item): static;
 	public function selectMultiple(array $items):static;
+	public function unselectMultiple(array $items):static;
+
+	public function selectAll():static;
+
+	public function unselectAll():static;
 
 	public function getSelectedIdentifiers(): array;
 }

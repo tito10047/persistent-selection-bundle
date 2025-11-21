@@ -22,18 +22,27 @@ class Selection implements SelectionInterface, RememberAllInterface, HasModeInte
 	}
 
 	public function isSelected(mixed $item): bool {
-		return $this->storage->hasIdentifier($this->key, $item);
+		$has = $this->storage->hasIdentifier($this->key, $item);
+		return $this->storage->getMode($this->key) === SelectionMode::INCLUDE ? $has : !$has;
 	}
 
 	public function select(mixed $item): static {
 		$id = $this->normalizer->normalize($item, $this->identifierPath);
-		$this->storage->add($this->key, [$id]);
+		if ($this->storage->getMode($this->key) === SelectionMode::INCLUDE) {
+			$this->storage->add($this->key, [$id]);
+		} else {
+			$this->storage->remove($this->key, [$id]);
+		}
 		return $this;
 	}
 
 	public function unselect(mixed $item): static {
 		$id = $this->normalizer->normalize($item, $this->identifierPath);
-		$this->storage->remove($this->key, [$id]);
+		if ($this->storage->getMode($this->key) === SelectionMode::INCLUDE) {
+			$this->storage->remove($this->key, [$id]);
+		} else {
+			$this->storage->add($this->key, [$id]);
+		}
 		return $this;
 	}
 
@@ -44,6 +53,24 @@ class Selection implements SelectionInterface, RememberAllInterface, HasModeInte
 		}
 		$this->storage->add($this->key, $ids);
 		return $this;
+	}
+	public function unselectMultiple(array $items): static {
+		$ids = [];
+		foreach ($items as $item) {
+			$ids[] = $this->normalizer->normalize($item, $this->identifierPath);
+		}
+		$this->storage->remove($this->key,$ids);
+		return $this;
+	}
+
+	public function selectAll(): static {
+		$this->storage->clear($this->key);
+		$this->storage->setMode($this->key,SelectionMode::EXCLUDE);
+	}
+
+	public function unselectAll(): static {
+		$this->storage->clear($this->key);
+		$this->storage->setMode($this->key,SelectionMode::INCLUDE);
 	}
 
 	public function getSelectedIdentifiers(): array {
@@ -78,4 +105,5 @@ class Selection implements SelectionInterface, RememberAllInterface, HasModeInte
 		$this->storage->clear($this->getAllContext());
 		return $this;
 	}
+
 }
