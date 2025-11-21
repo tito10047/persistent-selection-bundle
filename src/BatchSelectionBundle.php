@@ -34,7 +34,6 @@ class BatchSelectionBundle extends AbstractBundle
 			$normalizer = service($subConfig['normalizer']??'batch_selection.identity_loader');
 			$storage = service($subConfig['storage']??'batch_selection.storage.session');
 			$identifierPath = $subConfig['identifier_path']??null;
-			$propertyName = u($name)->camel()->toString();
 			$services
 				->set('batch_selection.manager.'.$name,SelectionManager::class)
 				->public()
@@ -43,14 +42,6 @@ class BatchSelectionBundle extends AbstractBundle
 				->arg('$normalizer', $normalizer)
 				->arg('$identifierPath', $identifierPath)
 				;
-
-			// Umožniť named autowiring: SelectionManagerInterface $<name>Manager → batch_selection.manager.<name>
-			// Použijeme alias, nie bind – alias nevyhadzuje chybu, ak sa nikde nepoužije.
-//			dump(SelectionManagerInterface::class." {$propertyName}Manager");
-//			$services->bind(
-//				SelectionManagerInterface::class." {$propertyName}Manager",
-//				'batch_selection.manager.'.$name
-//			);
 		}
     }
 

@@ -81,6 +81,7 @@ return static function (ContainerConfigurator $container): void {
             ->arg('$loaders', tagged_iterator('batch_selection.identity_loader'))
             ->arg('$normalizer', abstract_arg('normalizer'))
             ->arg('$identifierPath', abstract_arg('identifierPath'))
+		->alias(SelectionManagerInterface::class, 'batch_selection.manager.default')
     ;
 
 };
