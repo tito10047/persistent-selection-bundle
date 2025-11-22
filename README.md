@@ -1,4 +1,4 @@
-![Tests](https://github.com/php-bug-catcher/bug-catcher/actions/workflows/symfony.yml/badge.svg)
+![Tests](https://github.com//tito10047/batch-selection-bundle/actions/workflows/symfony.yml/badge.svg)
 
 
 # 🛒 Batch Selection Bundle
