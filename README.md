@@ -1,5 +1,11 @@
+![Tests](https://github.com/php-bug-catcher/bug-catcher/actions/workflows/symfony.yml/badge.svg)
+
 
 # 🛒 Batch Selection Bundle
+
+<p align="center">
+<img src="docs/screenshot.png"><br>
+</p>
 
 Make true "Select All" and persistent multi‑page selection effortless in Symfony. This bundle lets users select items across pagination, filters, and even page visits, then run bulk actions reliably without loading entire entities into memory.
 
