@@ -20,7 +20,7 @@ class SelectionRuntime implements RuntimeExtensionInterface {
 	) {
 	}
 
-	public function getStimulusController(string $key, string $controller = null, array $variables = [], string $manager = 'default', bool $asArray = false): string|array {
+	public function getStimulusController(string $key, ?string $controller = null, array $variables = [], string $manager = 'default', bool $asArray = false): string|array {
 		$toggleUrl    = $this->router->generate('batch_selection_toggle');
 		$selectAllUrl = $this->router->generate('batch_selection_select_all');
 		$selectRange  = $this->router->generate('batch_selection_select_range');
