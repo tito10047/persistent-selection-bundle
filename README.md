@@ -167,6 +167,20 @@ final class LogList extends AbstractController
 
 ---
 
+This documentation covers the most important extension points of the bundle with focused, example‑driven guides.
+
+- Identifier normalization — converting items to scalar IDs:
+    - See: [docs/identifier-normalizer.md](docs/identifier-normalizer.md)
+- Loaders — how IDs are collected from various sources:
+    - See: [docs/identity-loader.md](docs/identity-loader.md)
+- Storage — how selections are persisted (per user, per context):
+    - See: [docs/storage.md](docs/storage.md)
+- Twig helpers — UI functions available in templates:
+    - See: [docs/twig-selection-extension.md](docs/twig-selection-extension.md)
+
+
+---
+
 ## 📣 Notes
 
 - Designed for very large datasets; easily extend loaders if you grow beyond 100k items
