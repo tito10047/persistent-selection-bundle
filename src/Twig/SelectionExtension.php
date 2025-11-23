@@ -7,7 +7,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\TwigFunction;
 
-class SelectionExtension extends AbstractExtension implements GlobalsInterface
+final class SelectionExtension extends AbstractExtension implements GlobalsInterface
 {
     public function getFunctions(): array
     {

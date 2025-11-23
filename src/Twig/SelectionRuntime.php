@@ -2,12 +2,13 @@
 
 namespace Tito10047\BatchSelectionBundle\Twig;
 
+use InvalidArgumentException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Tito10047\BatchSelectionBundle\BatchSelectionBundle;
 use Tito10047\BatchSelectionBundle\Service\SelectionManagerInterface;
 use Twig\Extension\RuntimeExtensionInterface;
 
-class SelectionRuntime implements RuntimeExtensionInterface {
+final class SelectionRuntime implements RuntimeExtensionInterface {
 
 	private string $controllerName = BatchSelectionBundle::STIMULUS_CONTROLLER;
 
@@ -172,6 +173,6 @@ class SelectionRuntime implements RuntimeExtensionInterface {
 				return $selectionManager;
 			}
 		}
-		throw new \InvalidArgumentException(sprintf('No selection manager found for manager "%s".', $manager));
+		throw new InvalidArgumentException(sprintf('No selection manager found for manager "%s".', $manager));
 	}
 }

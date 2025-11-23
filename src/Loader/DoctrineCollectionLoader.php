@@ -3,12 +3,13 @@
 namespace Tito10047\BatchSelectionBundle\Loader;
 
 use Doctrine\Common\Collections\Collection;
+use InvalidArgumentException;
 use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 
 /**
  * Loader responsible for extracting identifiers from Doctrine Collection objects.
  */
-class DoctrineCollectionLoader implements IdentityLoaderInterface
+final class DoctrineCollectionLoader implements IdentityLoaderInterface
 {
 	private const DEFAULT_IDENTIFIER_PATH = 'id';
 
@@ -26,7 +27,7 @@ class DoctrineCollectionLoader implements IdentityLoaderInterface
 	public function getTotalCount(mixed $source): int
 	{
 		if (!$this->supports($source)) {
-			throw new \InvalidArgumentException('Source must be a Doctrine Collection.');
+			throw new InvalidArgumentException('Source must be a Doctrine Collection.');
 		}
 
 		/** @var Collection $source */
@@ -41,7 +42,7 @@ class DoctrineCollectionLoader implements IdentityLoaderInterface
 	public function loadAllIdentifiers(?IdentifierNormalizerInterface $resolver, mixed $source, ?string $identifierPath): array
 	{
 		if (!$this->supports($source)) {
-			throw new \InvalidArgumentException('Source must be a Doctrine Collection.');
+			throw new InvalidArgumentException('Source must be a Doctrine Collection.');
 		}
 
 		/** @var Collection $source */

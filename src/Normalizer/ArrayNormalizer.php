@@ -2,9 +2,10 @@
 
 namespace Tito10047\BatchSelectionBundle\Normalizer;
 
+use RuntimeException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
-class ArrayNormalizer implements IdentifierNormalizerInterface
+final class ArrayNormalizer implements IdentifierNormalizerInterface
 {
 	public function supports(mixed $item): bool
 	{
@@ -18,6 +19,6 @@ class ArrayNormalizer implements IdentifierNormalizerInterface
 			return $item[$identifierPath];
 		}
 
-		throw new \RuntimeException('Extracted value is not a scalar.');
+		throw new RuntimeException('Extracted value is not a scalar.');
 	}
 }

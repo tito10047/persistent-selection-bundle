@@ -3,9 +3,10 @@
 namespace Tito10047\BatchSelectionBundle\Loader;
 
 
+use InvalidArgumentException;
 use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 
-class ArrayLoader implements IdentityLoaderInterface
+final class ArrayLoader implements IdentityLoaderInterface
 {
 
 	public function supports(mixed $source): bool
@@ -16,7 +17,7 @@ class ArrayLoader implements IdentityLoaderInterface
 	public function loadAllIdentifiers(?IdentifierNormalizerInterface $resolver, mixed $source, ?string $identifierPath): array
 	{
 		if (!is_array($source)) {
-			throw new \InvalidArgumentException('Source must be an array.');
+			throw new InvalidArgumentException('Source must be an array.');
 		}
 
 		$identifiers = [];

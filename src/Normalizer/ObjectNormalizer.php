@@ -2,9 +2,10 @@
 
 namespace Tito10047\BatchSelectionBundle\Normalizer;
 
+use RuntimeException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
-class ObjectNormalizer implements IdentifierNormalizerInterface
+final class ObjectNormalizer implements IdentifierNormalizerInterface
 {
 	public function supports(mixed $item): bool
 	{
@@ -16,7 +17,7 @@ class ObjectNormalizer implements IdentifierNormalizerInterface
 		$accessor = PropertyAccess::createPropertyAccessor();
 
 		if (!$accessor->isReadable($item, $identifierPath)) {
-			throw new \RuntimeException(sprintf(
+			throw new RuntimeException(sprintf(
 				'Cannot read identifier "%s" from object of type "%s".',
 				$identifierPath, get_debug_type($item)
 			));
@@ -32,6 +33,6 @@ class ObjectNormalizer implements IdentifierNormalizerInterface
 			return $value;
 		}
 
-		throw new \RuntimeException('Extracted value is not a scalar.');
+		throw new RuntimeException('Extracted value is not a scalar.');
 	}
 }

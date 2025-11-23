@@ -6,7 +6,7 @@ use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
 use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 use Tito10047\BatchSelectionBundle\Storage\StorageInterface;
 
-class Selection implements SelectionInterface, RememberAllInterface, HasModeInterface {
+final class Selection implements SelectionInterface, RememberAllInterface, HasModeInterface {
 
 	public function __construct(
 		private readonly string                        $key,

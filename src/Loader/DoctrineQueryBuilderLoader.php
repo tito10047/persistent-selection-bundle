@@ -6,6 +6,7 @@ namespace Tito10047\BatchSelectionBundle\Loader;
 
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use Exception;
 use InvalidArgumentException;
 use RuntimeException;
 use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
@@ -14,7 +15,7 @@ use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
  * Loader pre Doctrine QueryBuilder.
  * Zachováva pôvodné WHERE/JOINS a prepisuje len SELECT časť.
  */
-class DoctrineQueryBuilderLoader implements IdentityLoaderInterface
+final class DoctrineQueryBuilderLoader implements IdentityLoaderInterface
 {
 	public function __construct(
 		private IdentifierNormalizerInterface $arrayNormalizer
@@ -116,7 +117,7 @@ class DoctrineQueryBuilderLoader implements IdentityLoaderInterface
 
         try {
             return (int) $baseQb->getQuery()->getSingleScalarResult();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new RuntimeException('Failed to execute count query.', 0, $e);
         }
     }

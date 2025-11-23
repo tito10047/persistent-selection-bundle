@@ -2,7 +2,9 @@
 
 namespace Tito10047\BatchSelectionBundle\Normalizer;
 
-class ScalarNormalizer implements IdentifierNormalizerInterface{
+use RuntimeException;
+
+final class ScalarNormalizer implements IdentifierNormalizerInterface {
 
 	public function supports(mixed $item): bool {
 		return is_scalar($item) && !class_exists($item);
@@ -13,6 +15,6 @@ class ScalarNormalizer implements IdentifierNormalizerInterface{
 			return $item;
 		}
 
-		throw new \RuntimeException('Item is not a valid scalar type after check.');
+		throw new RuntimeException('Item is not a valid scalar type after check.');
 	}
 }

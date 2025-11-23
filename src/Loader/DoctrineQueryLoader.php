@@ -6,6 +6,7 @@ namespace Tito10047\BatchSelectionBundle\Loader;
 
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use Exception;
 use RuntimeException;
 use InvalidArgumentException;
 use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
@@ -14,7 +15,7 @@ use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
  * Loader responsible for extracting identifiers and counts from a Doctrine ORM Query object.
  * This class modifies the underlying DQL for optimized SELECT and COUNT queries.
  */
-class DoctrineQueryLoader implements IdentityLoaderInterface
+final class DoctrineQueryLoader implements IdentityLoaderInterface
 {
 
 	/**
@@ -119,7 +120,7 @@ class DoctrineQueryLoader implements IdentityLoaderInterface
 
         try {
             return (int) $countQuery->getSingleScalarResult();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new RuntimeException('Failed to execute optimized count query.', 0, $e);
         }
 	}
