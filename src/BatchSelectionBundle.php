@@ -35,6 +35,7 @@ class BatchSelectionBundle extends AbstractBundle
 			$normalizer = service($subConfig['normalizer']??'batch_selection.identity_loader');
 			$storage = service($subConfig['storage']??'batch_selection.storage.session');
 			$identifierPath = $subConfig['identifier_path']??null;
+			$ttl = $subConfig['ttl'] ?? null;
 			$services
 				->set('batch_selection.manager.'.$name,SelectionManager::class)
 				->public()
@@ -42,6 +43,7 @@ class BatchSelectionBundle extends AbstractBundle
 				->arg('$loaders', tagged_iterator('batch_selection.identity_loader'))
 				->arg('$normalizer', $normalizer)
 				->arg('$identifierPath', $identifierPath)
+				->arg('$ttl', $ttl)
 				->tag('batch_selection.manager', ['name' => $name])
 				;
 		}

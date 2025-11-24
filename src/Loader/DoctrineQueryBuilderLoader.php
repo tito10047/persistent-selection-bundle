@@ -148,6 +148,56 @@ final class DoctrineQueryBuilderLoader implements IdentityLoaderInterface
     }
 
 	public function getCacheKey(mixed $source): string {
-		// TODO: Implement getCacheKey() method.
+		if (!$this->supports($source)) {
+			throw new InvalidArgumentException('Source must be a Doctrine QueryBuilder instance.');
+		}
+
+		/** @var QueryBuilder $source */
+		// Use the generated DQL from the QB for a stable representation of structure
+		$dql = $source->getQuery()->getDQL();
+		$params = $source->getParameters();
+		$normParams = [];
+		foreach ($params as $p) {
+			$name = method_exists($p, 'getName') ? $p->getName() : null;
+			$value = method_exists($p, 'getValue') ? $p->getValue() : null;
+			$normParams[] = [
+				'name' => $name,
+				'value' => self::normalizeValue($value),
+			];
+		}
+		usort($normParams, function($a, $b){
+			return strcmp((string)$a['name'], (string)$b['name']);
+		});
+
+		return 'doctrine_qb:' . md5(serialize([$dql, $normParams]));
+	}
+
+	/**
+	 * Normalize values for a deterministic cache key.
+	 */
+	private static function normalizeValue(mixed $value): mixed
+	{
+		if (is_scalar($value) || $value === null) {
+			return $value;
+		}
+		if ($value instanceof \DateTimeInterface) {
+			return ['__dt__' => true, 'v' => $value->format(DATE_ATOM)];
+		}
+		if (is_array($value)) {
+			$normalized = [];
+			foreach ($value as $k => $v) {
+				$normalized[$k] = self::normalizeValue($v);
+			}
+			if (!array_is_list($normalized)) {
+				ksort($normalized);
+			}
+			return $normalized;
+		}
+		if (is_object($value)) {
+			$vars = get_object_vars($value);
+			ksort($vars);
+			return ['__class__' => get_class($value), 'props' => self::normalizeValue($vars)];
+		}
+		return (string)$value;
 	}
 }

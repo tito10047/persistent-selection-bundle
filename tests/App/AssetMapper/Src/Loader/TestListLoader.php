@@ -44,6 +44,10 @@ class TestListLoader implements IdentityLoaderInterface
     }
 
 	public function getCacheKey(mixed $source): string {
-		// TODO: Implement getCacheKey() method.
+		if (!$this->supports($source)) {
+			throw new \InvalidArgumentException('Source musí byť inštancia TestList.');
+		}
+		// Deterministický kľúč zo zoznamu položiek
+		return 'test_list:' . md5(serialize($source->all()));
 	}
 }

@@ -33,10 +33,44 @@ class DoctrineQueryBuilderLoaderTest extends AssetMapperKernelTestCase
 
         $ids = array_map(fn(RecordInteger $record) => $record->getId(), $records);
         sort($ids);
-        $foundIds = $loader->loadAllIdentifiers($normalizer, $qb, 'id');
+        $foundIds = $loader->loadAllIdentifiers(null, $qb, 'id');
         sort($foundIds);
 
         $this->assertEquals($ids, $foundIds);
+    }
+
+    public function testGetCacheKeyStableAndDistinct(): void
+    {
+        RecordIntegerFactory::createMany(3);
+
+        $loader = new DoctrineQueryBuilderLoader(new ArrayNormalizer());
+
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get('doctrine')->getManager();
+
+        $qb1 = $em->createQueryBuilder()
+            ->select('i')
+            ->from(RecordInteger::class, 'i')
+            ->where('i.name = :name')
+            ->setParameter('name', 'keep');
+
+        $qb2 = $em->createQueryBuilder()
+            ->select('i')
+            ->from(RecordInteger::class, 'i')
+            ->where('i.name = :name')
+            ->setParameter('name', 'keep');
+
+        // Rovnaká filtrácia → rovnaký cache key
+        $k1a = $loader->getCacheKey($qb1);
+        $k1b = $loader->getCacheKey($qb1);
+        $k2 = $loader->getCacheKey($qb2);
+        $this->assertSame($k1a, $k1b);
+        $this->assertSame($k1a, $k2);
+
+        // Zmena parametra → iný cache key
+        $qb2->setParameter('name', 'drop');
+        $k3 = $loader->getCacheKey($qb2);
+        $this->assertNotSame($k2, $k3);
     }
 
     public function testWithWhere(): void

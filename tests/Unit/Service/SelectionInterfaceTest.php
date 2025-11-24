@@ -29,8 +29,8 @@ class SelectionInterfaceTest  extends TestCase{
 	}
 
 	public function testGetSelectedIdentifiersWithExcludeModeRemembersAll():void {
-		$selection = new Selection('test', null, $this->storage, $this->normalizer);
-		$selection->setSelection([1, 2, 3]);
+  $selection = new Selection('test', null, $this->storage, $this->normalizer);
+  $selection->setSelection('ck_test_123', [1, 2, 3]);
 		$selection->setMode(SelectionMode::EXCLUDE);
 
 		/** @var SelectionInterface $selection */
@@ -91,9 +91,9 @@ class SelectionInterfaceTest  extends TestCase{
 
 	public function testDestroyClearsAllContexts(): void
 	{
-		$selection = new Selection('ctx_destroy', null, $this->storage, $this->normalizer);
-		// Setup some state in both primary and __ALL__ contexts (using helper methods only for setup)
-		$selection->setSelection([100, 200, 300]);
+  $selection = new Selection('ctx_destroy', null, $this->storage, $this->normalizer);
+  // Setup some state in both primary and __ALL__ contexts (using helper methods only for setup)
+  $selection->setSelection('ck_destroy', [100, 200, 300]);
 		$selection->select(200)->select(400);
 
 		// Sanity before destroy
@@ -107,12 +107,29 @@ class SelectionInterfaceTest  extends TestCase{
 		$this->assertFalse($selection->isSelected(200));
 	}
 
-	public function testGetSelectedIdentifiersInIncludeMode(): void
-	{
-		$selection = new Selection('ctx_ids', null, $this->storage, $this->normalizer);
-		$selection->select(1)->select(2)->select(2); // duplicate should be deduped by storage
+    public function testGetSelectedIdentifiersInIncludeMode(): void
+    {
+        $selection = new Selection('ctx_ids', null, $this->storage, $this->normalizer);
+        $selection->select(1)->select(2)->select(2); // duplicate should be deduped by storage
 
-		/** @var SelectionInterface $selection */
-		$this->assertSame([1, 2], $selection->getSelectedIdentifiers());
-	}
+        /** @var SelectionInterface $selection */
+        $this->assertSame([1, 2], $selection->getSelectedIdentifiers());
+    }
+
+    public function testHasSelectionWithCacheKeyAndTtl(): void
+    {
+        $selection = new Selection('ctx_meta', null, $this->storage, $this->normalizer);
+
+        // Initially no selection cached
+        $this->assertFalse($selection->hasSelection('abc'));
+
+        // Set with cache key and ttl 1 second
+        $selection->setSelection('abc', [10, 20], 1);
+        $this->assertTrue($selection->hasSelection('abc'));
+        $this->assertFalse($selection->hasSelection('other'));
+
+        // Simulate expiration by setting ttl=0 immediate expire
+        $selection->setSelection('exp', [1], 0);
+        $this->assertFalse($selection->hasSelection('exp'));
+    }
 }

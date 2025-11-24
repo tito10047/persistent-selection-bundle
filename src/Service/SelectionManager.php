@@ -9,14 +9,15 @@ use Tito10047\BatchSelectionBundle\Storage\StorageInterface;
 
 final class SelectionManager implements SelectionManagerInterface {
 
-	public function __construct(
-		private readonly StorageInterface              $storage,
-		private readonly IdentifierNormalizerInterface $normalizer,
-		private readonly ?string                       $identifierPath,
-		/** @var IdentityLoaderInterface[] */
-		private readonly iterable                      $loaders,
-	) {
-	}
+ public function __construct(
+        private readonly StorageInterface              $storage,
+        private readonly IdentifierNormalizerInterface $normalizer,
+        private readonly ?string                       $identifierPath,
+        /** @var IdentityLoaderInterface[] */
+        private readonly iterable                      $loaders,
+        private readonly int|\DateInterval|null        $ttl = null,
+    ) {
+    }
 
 	public function registerSource(string $key, mixed $source, ?IdentifierNormalizerInterface $normalizer = null): SelectionInterface {
 		$loader = $this->findLoader($source);
@@ -29,12 +30,13 @@ final class SelectionManager implements SelectionManagerInterface {
 			}
 		}
 		$cacheKey = $loader->getCacheKey($source);
-		if (!$selection->hasSelection($cacheKey)) {
-			$selection->setSelection(
-				$cacheKey,
-				$loader->loadAllIdentifiers($normalizer ?? $this->normalizer, $source, $this->identifierPath)
-			);
-		}
+  if (!$selection->hasSelection($cacheKey)) {
+            $selection->setSelection(
+                $cacheKey,
+                $loader->loadAllIdentifiers($normalizer ?? $this->normalizer, $source, $this->identifierPath),
+                $this->ttl
+            );
+        }
 
 		return $selection;
 	}

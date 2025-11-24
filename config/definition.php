@@ -26,6 +26,9 @@ return static function (DefinitionConfigurator $definition): void {
 
                     // ID storage služby; ak nie je zadané, použije sa defaultná storage aliasovaná na StorageInterface
                     ->scalarNode('storage')->defaultNull()->end()
+
+                    // TTL (v sekundách) pre cache ALL výberu. Ak je null, neexpiruje.
+                    ->integerNode('ttl')->defaultNull()->min(0)->end()
                 ->end()
             ->end()
         ->end()

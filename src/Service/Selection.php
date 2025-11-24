@@ -85,14 +85,68 @@ final class Selection implements SelectionInterface, SelectionStorageInterface, 
 		}
 	}
 
-	public function setSelection(string $cacheKey, array $ids, int|\DateInterval|null $ttl = null): static {
-		$this->storage->add($this->getAllContext(), $ids);
-		return $this;
-	}
+ public function setSelection(string $cacheKey, array $ids, int|\DateInterval|null $ttl = null): static {
+        // overwrite ALL context with provided ids
+        $this->storage->clear($this->getAllContext());
+        if ($ids !== []) {
+            $this->storage->add($this->getAllContext(), $ids);
+        }
 
-	public function hasSelection(string $cacheKey): bool {
-		// TODO: Implement hasSelection() method.
-	}
+        // store meta (cacheKey + expiresAt) into a dedicated meta context
+        $expiresAt = null;
+        if ($ttl instanceof \DateInterval) {
+            $dt = new \DateTimeImmutable('now');
+            $expiresAt = $dt->add($ttl)->getTimestamp();
+        } elseif (is_int($ttl)) {
+            $expiresAt = time() + $ttl;
+        }
+
+        $meta = json_encode([
+            'cacheKey'  => $cacheKey,
+            'expiresAt' => $expiresAt, // null means no expiration
+        ], JSON_THROW_ON_ERROR);
+
+        // ensure meta context only contains the latest meta record
+        $this->storage->clear($this->getAllMetaContext());
+        $this->storage->add($this->getAllMetaContext(), [$meta]);
+
+        return $this;
+    }
+
+    public function hasSelection(string $cacheKey): bool {
+        $records = $this->storage->getStoredIdentifiers($this->getAllMetaContext());
+        if (count($records) === 0) {
+            return false;
+        }
+        $raw = $records[0];
+        if (!is_string($raw)) {
+            // corrupted meta, drop it
+            $this->storage->clear($this->getAllMetaContext());
+            return false;
+        }
+        try {
+            $data = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable) {
+            $this->storage->clear($this->getAllMetaContext());
+            return false;
+        }
+
+        $storedKey = $data['cacheKey'] ?? null;
+        $expiresAt = $data['expiresAt'] ?? null;
+        if (!is_string($storedKey) || $storedKey !== $cacheKey) {
+            return false;
+        }
+        if ($expiresAt === null) {
+            return true; // never expires
+        }
+        if (!is_int($expiresAt) || $expiresAt <= time()) {
+            // expired, cleanup
+            $this->storage->clear($this->getAllContext());
+            $this->storage->clear($this->getAllMetaContext());
+            return false;
+        }
+        return true;
+    }
 
 	public function setMode(SelectionMode $mode): void {
 		$this->storage->setMode($this->key, $mode);
@@ -102,15 +156,20 @@ final class Selection implements SelectionInterface, SelectionStorageInterface, 
 		return $this->storage->getMode($this->key);
 	}
 
-	private function getAllContext(): string {
-		return $this->key . '__ALL__';
-	}
+ private function getAllContext(): string {
+        return $this->key . '__ALL__';
+    }
 
-	public function destroy(): static {
-		$this->storage->clear($this->key);
-		$this->storage->clear($this->getAllContext());
-		return $this;
-	}
+    private function getAllMetaContext(): string {
+        return $this->key . '__ALL_META__';
+    }
+
+ public function destroy(): static {
+        $this->storage->clear($this->key);
+        $this->storage->clear($this->getAllContext());
+        $this->storage->clear($this->getAllMetaContext());
+        return $this;
+    }
 
 	public function isSelectedAll(): bool {
 		return $this->getMode() == SelectionMode::EXCLUDE && count($this->getSelectedIdentifiers())==0;
