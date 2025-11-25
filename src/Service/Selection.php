@@ -7,11 +7,13 @@ use Tito10047\PersistentSelectionBundle\Enum\SelectionMode;
 use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 use Tito10047\PersistentSelectionBundle\Storage\StorageInterface;
 
-final class Selection implements SelectionInterface, RememberAllInterface, HasModeInterface {
+final class Selection implements SelectionInterface, HasModeInterface, RegisterSelectionInterface {
 
 	public function __construct(
 		private readonly string                        $key,
+		private readonly int|\DateInterval|null        $ttl = null,
 		private readonly ?string                       $identifierPath,
+
 		private readonly StorageInterface              $storage,
 		private readonly IdentifierNormalizerInterface $normalizer,
 		private readonly MetadataConverterInterface    $metadataConverter,
@@ -182,41 +184,6 @@ final class Selection implements SelectionInterface, RememberAllInterface, HasMo
 		return $this;
 	}
 
-    public function hasSelection(string $cacheKey): bool {
-        $records = $this->storage->getStoredIdentifiers($this->getAllMetaContext());
-        if (count($records) === 0) {
-            return false;
-        }
-        $raw = $records[0];
-        if (!is_string($raw)) {
-            // corrupted meta, drop it
-            $this->storage->clear($this->getAllMetaContext());
-            return false;
-        }
-        try {
-            $data = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\Throwable) {
-            $this->storage->clear($this->getAllMetaContext());
-            return false;
-        }
-
-        $storedKey = $data['cacheKey'] ?? null;
-        $expiresAt = $data['expiresAt'] ?? null;
-        if (!is_string($storedKey) || $storedKey !== $cacheKey) {
-            return false;
-        }
-        if ($expiresAt === null) {
-            return true; // never expires
-        }
-        if (!is_int($expiresAt) || $expiresAt <= time()) {
-            // expired, cleanup
-            $this->storage->clear($this->getAllContext());
-            $this->storage->clear($this->getAllMetaContext());
-            return false;
-        }
-        return true;
-    }
-
 	public function setMode(SelectionMode $mode): void {
 		$this->storage->setMode($this->key, $mode);
 	}
@@ -225,20 +192,20 @@ final class Selection implements SelectionInterface, RememberAllInterface, HasMo
 		return $this->storage->getMode($this->key);
 	}
 
- private function getAllContext(): string {
-        return $this->key . '__ALL__';
-    }
+	private function getAllContext(): string {
+		return $this->key . '__ALL__';
+	}
 
-    private function getAllMetaContext(): string {
-        return $this->key . '__ALL_META__';
-    }
+	private function getAllMetaContext(): string {
+		return $this->key . '__ALL_META__';
+	}
 
- public function destroy(): static {
-        $this->storage->clear($this->key);
-        $this->storage->clear($this->getAllContext());
-        $this->storage->clear($this->getAllMetaContext());
-        return $this;
-    }
+	public function destroy(): static {
+		$this->storage->clear($this->key);
+		$this->storage->clear($this->getAllContext());
+		$this->storage->clear($this->getAllMetaContext());
+		return $this;
+	}
 
 	public function isSelectedAll(): bool {
 		return $this->getMode() == SelectionMode::EXCLUDE && count($this->getSelectedIdentifiers()) == 0;
@@ -252,4 +219,25 @@ final class Selection implements SelectionInterface, RememberAllInterface, HasMo
 		return $this->normalizer->normalize($item, $this->identifierPath);
 	}
 
+
+	public function hasSource(string $cacheKey): bool {
+		return $this->storage->hasIdentifier($this->getAllMetaContext(), $cacheKey);
+	}
+	public function registerSource(string $cacheKey, mixed $source): static {
+		// If source already registered, do nothing
+		if ($this->hasSource($cacheKey)) {
+			return $this;
+		}
+
+		// Expecting $source to be an array of scalar identifiers already normalized
+		$ids = is_array($source) ? array_values($source) : [];
+		if (!empty($ids)) {
+			$this->rememberAll($ids);
+		}
+
+		// Mark the source as registered in ALL_META context
+		$this->storage->add($this->getAllMetaContext(), [$cacheKey], null);
+
+		return $this;
+	}
 }

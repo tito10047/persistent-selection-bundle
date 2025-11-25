@@ -89,8 +89,9 @@ return static function (ContainerConfigurator $container): void {
     // --- Metadata Converters ---
     $services
         ->set('persistent_selection.converter.object_vars', ObjectVarsConverter::class)
+		->public()
     ;
-    $services->alias(MetadataConverterInterface::class, 'batch_selection.converter.object_vars');
+    $services->alias(MetadataConverterInterface::class, 'persistent_selection.converter.object_vars');
 
     // --- SelectionManager ---
     $services

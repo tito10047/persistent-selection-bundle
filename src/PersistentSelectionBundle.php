@@ -6,11 +6,11 @@ use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Tito10047\PersistentSelectionBundle\Converter\MetadataConverterInterface;
+use Tito10047\PersistentSelectionBundle\Converter\ObjectVarsConverter;
 use Tito10047\PersistentSelectionBundle\DependencyInjection\Compiler\AutoTagIdentifierNormalizersPass;
 use Tito10047\PersistentSelectionBundle\DependencyInjection\Compiler\AutoTagIdentityLoadersPass;
 use Tito10047\PersistentSelectionBundle\Service\SelectionManager;
-use Tito10047\PersistentSelectionBundle\Service\SelectionManagerInterface;
-use Tito10047\PersistentSelectionBundle\Storage\StorageInterface;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use function Symfony\Component\String\u;
@@ -33,7 +33,7 @@ class PersistentSelectionBundle extends AbstractBundle
 		$services = $container->services();
 		// Default metadata converter service
 		$services->set('persistent_selection.converter.object_vars', ObjectVarsConverter::class)
-			->alias(MetadataConverterInterface::class, 'batch_selection.converter.object_vars');
+			->alias(MetadataConverterInterface::class, 'persistent_selection.converter.object_vars');
 		foreach($config as $name=>$subConfig){
 			$normalizer = service($subConfig['normalizer']??'persistent_selection.identity_loader');
 			$storage = service($subConfig['storage']??'persistent_selection.storage.session');

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Converter;
+namespace Tito10047\PersistentSelectionBundle\Converter;
 
 use Symfony\Component\Serializer\SerializerInterface;
 

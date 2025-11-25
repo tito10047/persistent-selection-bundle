@@ -2,8 +2,8 @@
 
 namespace Tito10047\PersistentSelectionBundle\Service;
 
-use Tito10047\PersistentSelectionBundle\Exception\NormalizationFailedException;
 use Tito10047\PersistentSelectionBundle\Converter\MetadataConverterInterface;
+use Tito10047\PersistentSelectionBundle\Exception\NormalizationFailedException;
 use Tito10047\PersistentSelectionBundle\Loader\IdentityLoaderInterface;
 use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 use Tito10047\PersistentSelectionBundle\Storage\StorageInterface;
@@ -21,10 +21,17 @@ final class SelectionManager implements SelectionManagerInterface {
 	) {
 	}
 
-	public function registerSource(string $context, mixed $source, ?IdentifierNormalizerInterface $normalizer = null): SelectionInterface {
+	public function registerSource(string $context, mixed $source): SelectionInterface {
 		$loader = $this->findLoader($source);
 
-		$selection = new Selection($context, $this->identifierPath, $this->storage, $this->normalizer, $this->metadataConverter);
+		$selection = new Selection(
+			$context,
+			$this->ttl,
+			$this->identifierPath,
+			$this->storage,
+			$this->normalizer,
+			$this->metadataConverter
+		);
 
 		foreach ($source as $item) {
 			if (!$this->normalizer->supports($item)) {
@@ -32,19 +39,17 @@ final class SelectionManager implements SelectionManagerInterface {
 			}
 		}
 		$cacheKey = $loader->getCacheKey($source);
-  if (!$selection->hasSelection($cacheKey)) {
-            $selection->setSelection(
-                $cacheKey,
-                $loader->loadAllIdentifiers($normalizer ?? $this->normalizer, $source, $this->identifierPath),
-                $this->ttl
-            );
-        }
+		if (!$selection->hasSource($cacheKey)) {
+			$selection->registerSource($cacheKey,
+				$loader->loadAllIdentifiers( $this->normalizer, $source, $this->identifierPath),
+			);
+		}
 
 		return $selection;
 	}
 
 	public function getSelection(string $context): SelectionInterface {
-		return new Selection($context, $this->identifierPath, $this->storage, $this->normalizer, $this->metadataConverter);
+		return new Selection($context, $this->ttl,$this->identifierPath, $this->storage, $this->normalizer, $this->metadataConverter);
 	}
 
 

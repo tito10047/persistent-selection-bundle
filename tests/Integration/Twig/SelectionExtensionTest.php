@@ -61,7 +61,7 @@ class SelectionExtensionTest extends AssetMapperKernelTestCase
         /** @var Environment $twig */
         $twig = $container->get('twig');
 
-        // batch_is_selected for id=2 should be true, for id=1 should be false
+        // persistent_is_selected for id=2 should be true, for id=1 should be false
         $tpl = $twig->createTemplate(
             "{{ persistent_selection_is_selected('twig_key', item) ? 'YES' : 'NO' }}"
         );
@@ -70,7 +70,7 @@ class SelectionExtensionTest extends AssetMapperKernelTestCase
         $this->assertSame('YES', $outSelected);
         $this->assertSame('NO', $outNotSelected);
 
-        // batch_row_selector should include checked attribute only for selected item
+        // persistent_row_selector should include checked attribute only for selected item
         $tpl = $twig->createTemplate("{{ persistent_selection_row_selector('twig_key', item) }}");
         $htmlSelected = $tpl->render(['item' => $items[1]]);
         $htmlNotSelected = $tpl->render(['item' => $items[0]]);
@@ -89,7 +89,7 @@ class SelectionExtensionTest extends AssetMapperKernelTestCase
         $name = $twig->createTemplate("{{ persistent_selection_stimulus_controller_name }}");
 		$this->assertSame($controllerName, trim($name->render()));
 
-        // batch_row_selector_all should not be checked in default INCLUDE mode
+        // persistent_row_selector_all should not be checked in default INCLUDE mode
         $tplAll = $twig->createTemplate("{{ persistent_selection_row_selector_all('twig_key') }}");
         $htmlAll = $tplAll->render();
         $this->assertStringNotContainsString('checked="checked"', $htmlAll);
@@ -100,7 +100,7 @@ class SelectionExtensionTest extends AssetMapperKernelTestCase
         $htmlAllExclude = $tplAll->render();
         $this->assertStringNotContainsString('checked="checked"', $htmlAllExclude);
 
-        // batch_stimulus_controller should contain controller name and required URLs
+        // persistent_stimulus_controller should contain controller name and required URLs
         $tplStimulus = $twig->createTemplate("{{ persistent_selection_stimulus_controller('twig_key') }}");
         $attrs = $tplStimulus->render();
         $this->assertStringContainsString("data-controller=\"{$controllerName}\"", $attrs);

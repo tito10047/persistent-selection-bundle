@@ -1,6 +1,6 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Converter;
+namespace Tito10047\PersistentSelectionBundle\Converter;
 
 /**
  * Definuje kontrakt pre extrahovanie a hydratáciu komplexných metadát (payload)
