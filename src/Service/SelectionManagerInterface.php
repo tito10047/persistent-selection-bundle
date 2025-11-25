@@ -6,8 +6,8 @@ use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface
 
 interface SelectionManagerInterface {
 
-	public function registerSource(string $key, mixed $source, ?IdentifierNormalizerInterface $normalizer = null): SelectionInterface;
+	public function registerSource(string $context, mixed $source, ?IdentifierNormalizerInterface $normalizer = null): SelectionInterface;
 
-	public function getSelection(string $key): SelectionInterface;
+	public function getSelection(string $context): SelectionInterface;
 
 }

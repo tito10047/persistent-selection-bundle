@@ -26,6 +26,8 @@ use Tito10047\PersistentSelectionBundle\Twig\SelectionExtension;
 use Tito10047\PersistentSelectionBundle\Twig\SelectionRuntime;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Tito10047\PersistentSelectionBundle\Controller\SelectController;
+use Tito10047\PersistentSelectionBundle\Converter\ObjectVarsConverter;
+use Tito10047\PersistentSelectionBundle\Converter\MetadataConverterInterface;
 
 /**
  * Konfigurácia služieb pre PersistentSelectionBundle – bez autowire/autoconfigure.
@@ -84,6 +86,12 @@ return static function (ContainerConfigurator $container): void {
     ;
     $services->alias(StorageInterface::class, SessionStorage::class);
 
+    // --- Metadata Converters ---
+    $services
+        ->set('persistent_selection.converter.object_vars', ObjectVarsConverter::class)
+    ;
+    $services->alias(MetadataConverterInterface::class, 'batch_selection.converter.object_vars');
+
     // --- SelectionManager ---
     $services
         ->set('persistent_selection.manager.default',SelectionManager::class)
@@ -92,7 +100,8 @@ return static function (ContainerConfigurator $container): void {
             ->arg('$loaders', tagged_iterator('persistent_selection.identity_loader'))
             ->arg('$normalizer', service('persistent_selection.normalizer.object'))
             ->arg('$identifierPath', 'id')
-            ->arg('$ttl', null)
+		->arg('$metadataConverter', service('persistent_selection.converter.object_vars'))
+		->arg('$ttl', null)
             ->tag('persistent_selection.manager', ['name' => 'default'])
 		->alias(SelectionManagerInterface::class, 'persistent_selection.manager.default')
     ;

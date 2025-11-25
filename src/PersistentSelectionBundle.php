@@ -29,8 +29,11 @@ class PersistentSelectionBundle extends AbstractBundle
     
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        $container->import('../config/services.php');
+      		$container->import('../config/services.php');
 		$services = $container->services();
+		// Default metadata converter service
+		$services->set('persistent_selection.converter.object_vars', ObjectVarsConverter::class)
+			->alias(MetadataConverterInterface::class, 'batch_selection.converter.object_vars');
 		foreach($config as $name=>$subConfig){
 			$normalizer = service($subConfig['normalizer']??'persistent_selection.identity_loader');
 			$storage = service($subConfig['storage']??'persistent_selection.storage.session');
@@ -44,10 +47,11 @@ class PersistentSelectionBundle extends AbstractBundle
 				->arg('$normalizer', $normalizer)
 				->arg('$identifierPath', $identifierPath)
 				->arg('$ttl', $ttl)
+				->arg('$metadataConverter', service('persistent_selection.converter.object_vars'))
 				->tag('persistent_selection.manager', ['name' => $name])
 				;
 		}
-    }
+	}
 
     public function build(ContainerBuilder $container): void
     {
