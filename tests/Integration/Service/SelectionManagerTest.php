@@ -89,7 +89,7 @@ class SelectionManagerTest extends AssetMapperKernelTestCase
 			['id' => 3, 'name' => 'C'],
 		];
 
-		$manager->registerSource("array_key",$data);
+		$manager->registerSource("array_key", $data);
 	}
 
 	#[TestWith(['default',[['id' => 1, 'name' => 'A']]])]
@@ -103,7 +103,7 @@ class SelectionManagerTest extends AssetMapperKernelTestCase
 		$manager = $container->get('batch_selection.manager.'.$service);
 
 		$this->expectException(NormalizationFailedException::class);
-		$manager->registerSource("array_key_2",$data);
+		$manager->registerSource("array_key_2", $data);
 	}
 
     public function testRegisterSourceLoadsAllInExcludeMode(): void

@@ -16,7 +16,11 @@ use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
  * [
  * 		'_batch_selection_{context}' => [
  * 			'mode'=> 'include', // value of SelectionMode enum
- * 			'ids'=> [1, 2, 5]
+ * 			'ids'=> [1, 2, 5],
+ * 			'meta'=> [
+ * 				1=> [ ... metadata array ... ],
+ * 				2=> [ ... metadata array ... ]
+ * 			]
  * 		]
  * ]
  */
@@ -33,7 +37,7 @@ final class SessionStorage implements StorageInterface
 		private readonly RequestStack $requestStack
 	) {}
 
-	public function add(string $context, array $ids): void
+	public function add(string $context, array $ids, ?array $metadata): void
 	{
 		$data = $this->loadData($context);
 
@@ -42,6 +46,14 @@ final class SessionStorage implements StorageInterface
 
 		// Remove duplicates and re-index the array to ensure it's a list, not a map
 		$data['ids'] = array_values(array_unique($merged));
+
+		// If metadata provided, assign same metadata array to all added IDs
+		if ($metadata !== null) {
+			foreach ($ids as $id) {
+				// use string keys to have consistent array keys in session
+				$data['meta'][(string)$id] = $metadata;
+			}
+		}
 
 		$this->saveData($context, $data);
 	}
@@ -56,6 +68,11 @@ final class SessionStorage implements StorageInterface
 		// Re-index array after removal
 		$data['ids'] = array_values($diff);
 
+		// Remove corresponding metadata entries for removed IDs
+		foreach ($ids as $id) {
+			unset($data['meta'][(string)$id]);
+		}
+
 		$this->saveData($context, $data);
 	}
 
@@ -64,7 +81,7 @@ final class SessionStorage implements StorageInterface
 		$this->getSession()->remove($this->getKey($context));
 	}
 
-	public function getStoredIdentifiers(string $context): array
+	public function getStored(string $context): array
 	{
 		return $this->loadData($context)['ids'];
 	}
@@ -92,23 +109,24 @@ final class SessionStorage implements StorageInterface
 		return SelectionMode::tryFrom($value) ?? SelectionMode::INCLUDE;
 	}
 
- /**
-  * Helper to retrieve the session service.
-  * Using RequestStack allows usage in services where the session might not be started yet.
-  */
- private function getSession(): SessionInterface
- {
-     try {
-         return $this->requestStack->getSession();
-     } catch (SessionNotFoundException $e) {
-         // No HTTP session available (likely CLI/tests). Use in-memory fallback session.
-         if ($this->fallbackSession === null) {
-             $this->fallbackSession = new Session(new MockArraySessionStorage());
-         }
 
-         return $this->fallbackSession;
+     /**
+      * Helper to retrieve the session service.
+      * Using RequestStack allows usage in services where the session might not be started yet.
+      */
+     private function getSession(): SessionInterface
+     {
+         try {
+             return $this->requestStack->getSession();
+         } catch (SessionNotFoundException $e) {
+             // No HTTP session available (likely CLI/tests). Use in-memory fallback session.
+             if ($this->fallbackSession === null) {
+                 $this->fallbackSession = new Session(new MockArraySessionStorage());
+             }
+
+             return $this->fallbackSession;
+         }
      }
- }
 
 	/**
 	 * Generates a namespaced key for the session.
@@ -118,25 +136,55 @@ final class SessionStorage implements StorageInterface
 		return self::SESSION_PREFIX . $context;
 	}
 
-	/**
-	 * Loads raw data from session or returns default structure.
-	 *
-	 * @return array{mode: string, ids: array<int|string>}
-	 */
-	private function loadData(string $context): array
-	{
-		return $this->getSession()->get($this->getKey($context), [
-			'mode' => SelectionMode::INCLUDE->value,
-			'ids' => []
-		]);
+ /**
+     * Loads raw data from session or returns default structure.
+     * Ensures presence of newly added keys for backward compatibility.
+     *
+     * @return array{mode: string, ids: array<int|string>, meta: array<string,array>}
+     */
+    private function loadData(string $context): array
+    {
+        $data = $this->getSession()->get($this->getKey($context), [
+            'mode' => SelectionMode::INCLUDE->value,
+            'ids' => [],
+            'meta' => [],
+        ]);
+
+        // Backward compatibility: add missing keys if old structure is present
+        if (!isset($data['meta']) || !is_array($data['meta'])) {
+            $data['meta'] = [];
+        }
+        if (!isset($data['ids']) || !is_array($data['ids'])) {
+            $data['ids'] = [];
+        }
+        if (!isset($data['mode']) || !is_string($data['mode'])) {
+            $data['mode'] = SelectionMode::INCLUDE->value;
+        }
+
+        return $data;
+    }
+
+ /**
+     * Persists the data structure back to the session.
+     * @param array{mode: string, ids: array<int|string>, meta: array<string,array>} $data
+     */
+    private function saveData(string $context, array $data): void
+    {
+        $this->getSession()->set($this->getKey($context), $data);
+    }
+
+	public function getStoredWithMetadata(string $context): array {
+		$data = $this->loadData($context);
+		$result = [];
+		foreach ($data['ids'] as $id) {
+			$key = (string)$id;
+			$result[$id] = $data['meta'][$key] ?? [];
+		}
+		return $result;
 	}
 
-	/**
-	 * Persists the data structure back to the session.
-	 * * @param array{mode: string, ids: array<int|string>} $data
-	 */
-	private function saveData(string $context, array $data): void
-	{
-		$this->getSession()->set($this->getKey($context), $data);
+	public function getMetadata(string $context, int|string $id): array {
+		$data = $this->loadData($context);
+		return $data['meta'][(string)$id] ?? [];
 	}
 }

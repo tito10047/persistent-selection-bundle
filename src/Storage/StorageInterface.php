@@ -17,12 +17,12 @@ use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
 interface StorageInterface
 {
 	/**
-	 * Adds identifiers to the storage for a specific context.
+	 * Pridá alebo aktualizuje identifikátory a ich pridružené dáta.
 	 *
-	 * @param string $context The unique context key (e.g., 'user_list', 'order_export')
-	 * @param array<string|int> $ids List of identifiers to add
+	 * @param array<int|string> $ids
+	 * @param array<string|int, array> $idMetadataMap Mapa: ID => Konvertované pole metadát
 	 */
-	public function add(string $context, array $ids): void;
+	public function add(string $context, array $ids, ?array $idMetadataMap): void;
 
 	/**
 	 * Removes identifiers from the storage for a specific context.
@@ -49,7 +49,11 @@ interface StorageInterface
 	 * @param string $context The unique context key
 	 * @return array<string|int>
 	 */
-	public function getStoredIdentifiers(string $context): array;
+	public function getStored(string $context): array;
+
+	public function getStoredWithMetadata(string $context):array;
+
+	public function getMetadata(string $context, string|int $id):array;
 
 	/**
 	 * Checks if a specific identifier is present in the storage.

@@ -11,6 +11,8 @@ use Tito10047\BatchSelectionBundle\DependencyInjection\Compiler\AutoTagIdentityL
 use Tito10047\BatchSelectionBundle\Service\SelectionManager;
 use Tito10047\BatchSelectionBundle\Service\SelectionManagerInterface;
 use Tito10047\BatchSelectionBundle\Storage\StorageInterface;
+use Tito10047\BatchSelectionBundle\Converter\ObjectVarsConverter;
+use Tito10047\BatchSelectionBundle\Converter\MetadataConverterInterface;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use function Symfony\Component\String\u;
@@ -29,8 +31,11 @@ class BatchSelectionBundle extends AbstractBundle
     
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        $container->import('../config/services.php');
+      		$container->import('../config/services.php');
 		$services = $container->services();
+		// Default metadata converter service
+		$services->set('batch_selection.converter.object_vars', ObjectVarsConverter::class)
+			->alias(MetadataConverterInterface::class, 'batch_selection.converter.object_vars');
 		foreach($config as $name=>$subConfig){
 			$normalizer = service($subConfig['normalizer']??'batch_selection.identity_loader');
 			$storage = service($subConfig['storage']??'batch_selection.storage.session');
@@ -42,10 +47,11 @@ class BatchSelectionBundle extends AbstractBundle
 				->arg('$loaders', tagged_iterator('batch_selection.identity_loader'))
 				->arg('$normalizer', $normalizer)
 				->arg('$identifierPath', $identifierPath)
+				->arg('$metadataConverter', service('batch_selection.converter.object_vars'))
 				->tag('batch_selection.manager', ['name' => $name])
 				;
 		}
-    }
+	}
 
     public function build(ContainerBuilder $container): void
     {

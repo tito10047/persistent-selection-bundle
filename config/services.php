@@ -26,6 +26,8 @@ use Tito10047\BatchSelectionBundle\Twig\SelectionExtension;
 use Tito10047\BatchSelectionBundle\Twig\SelectionRuntime;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Tito10047\BatchSelectionBundle\Controller\SelectController;
+use Tito10047\BatchSelectionBundle\Converter\ObjectVarsConverter;
+use Tito10047\BatchSelectionBundle\Converter\MetadataConverterInterface;
 
 /**
  * Konfigurácia služieb pre BatchSelectionBundle – bez autowire/autoconfigure.
@@ -84,6 +86,12 @@ return static function (ContainerConfigurator $container): void {
     ;
     $services->alias(StorageInterface::class, SessionStorage::class);
 
+    // --- Metadata Converters ---
+    $services
+        ->set('batch_selection.converter.object_vars', ObjectVarsConverter::class)
+    ;
+    $services->alias(MetadataConverterInterface::class, 'batch_selection.converter.object_vars');
+
     // --- SelectionManager ---
     $services
         ->set('batch_selection.manager.default',SelectionManager::class)
@@ -92,6 +100,7 @@ return static function (ContainerConfigurator $container): void {
             ->arg('$loaders', tagged_iterator('batch_selection.identity_loader'))
             ->arg('$normalizer', service('batch_selection.normalizer.object'))
             ->arg('$identifierPath', 'id')
+            ->arg('$metadataConverter', service('batch_selection.converter.object_vars'))
             ->tag('batch_selection.manager', ['name' => 'default'])
 		->alias(SelectionManagerInterface::class, 'batch_selection.manager.default')
     ;

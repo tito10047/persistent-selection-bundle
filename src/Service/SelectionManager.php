@@ -3,6 +3,7 @@
 namespace Tito10047\BatchSelectionBundle\Service;
 
 use Tito10047\BatchSelectionBundle\Exception\NormalizationFailedException;
+use Tito10047\BatchSelectionBundle\Converter\MetadataConverterInterface;
 use Tito10047\BatchSelectionBundle\Loader\IdentityLoaderInterface;
 use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 use Tito10047\BatchSelectionBundle\Storage\StorageInterface;
@@ -13,15 +14,16 @@ final class SelectionManager implements SelectionManagerInterface {
 		private readonly StorageInterface              $storage,
 		private readonly IdentifierNormalizerInterface $normalizer,
 		private readonly ?string                       $identifierPath,
+		private readonly MetadataConverterInterface    $metadataConverter,
 		/** @var IdentityLoaderInterface[] */
 		private readonly iterable                      $loaders,
 	) {
 	}
 
-	public function registerSource(string $key, mixed $source, ?IdentifierNormalizerInterface $normalizer = null): SelectionInterface {
+	public function registerSource(string $context, mixed $source, ?IdentifierNormalizerInterface $normalizer = null): SelectionInterface {
 		$loader = $this->findLoader($source);
 
-		$selection = new Selection($key, $this->identifierPath, $this->storage, $this->normalizer);
+		$selection = new Selection($context, $this->identifierPath, $this->storage, $this->normalizer, $this->metadataConverter);
 
 		foreach ($source as $item) {
 			if (!$this->normalizer->supports($item)) {
@@ -33,8 +35,8 @@ final class SelectionManager implements SelectionManagerInterface {
 		return $selection;
 	}
 
-	public function getSelection(string $key): SelectionInterface {
-		return new Selection($key, $this->identifierPath, $this->storage, $this->normalizer);
+	public function getSelection(string $context): SelectionInterface {
+		return new Selection($context, $this->identifierPath, $this->storage, $this->normalizer, $this->metadataConverter);
 	}
 
 
