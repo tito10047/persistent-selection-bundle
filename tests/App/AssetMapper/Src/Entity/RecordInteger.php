@@ -1,9 +1,9 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Entity;
+namespace Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Entity\TestCategory;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Entity\TestCategory;
 
 #[ORM\Entity]
 class RecordInteger {

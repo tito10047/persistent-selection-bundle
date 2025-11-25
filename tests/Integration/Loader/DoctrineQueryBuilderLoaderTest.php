@@ -1,15 +1,15 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Integration\Loader;
+namespace Tito10047\PersistentSelectionBundle\Tests\Integration\Loader;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Tito10047\BatchSelectionBundle\Loader\DoctrineQueryBuilderLoader;
-use Tito10047\BatchSelectionBundle\Normalizer\ArrayNormalizer;
-use Tito10047\BatchSelectionBundle\Normalizer\ObjectNormalizer;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Entity\RecordInteger;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Factory\RecordIntegerFactory;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Factory\TestCategoryFactory;
-use Tito10047\BatchSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
+use Tito10047\PersistentSelectionBundle\Loader\DoctrineQueryBuilderLoader;
+use Tito10047\PersistentSelectionBundle\Normalizer\ArrayNormalizer;
+use Tito10047\PersistentSelectionBundle\Normalizer\ObjectNormalizer;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Entity\RecordInteger;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Factory\RecordIntegerFactory;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Factory\TestCategoryFactory;
+use Tito10047\PersistentSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
 
 class DoctrineQueryBuilderLoaderTest extends AssetMapperKernelTestCase
 {

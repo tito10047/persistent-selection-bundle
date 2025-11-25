@@ -1,12 +1,12 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Unit\Loader;
+namespace Tito10047\PersistentSelectionBundle\Tests\Unit\Loader;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Tito10047\BatchSelectionBundle\Loader\DoctrineCollectionLoader;
-use Tito10047\BatchSelectionBundle\Normalizer\ObjectNormalizer;
-use Tito10047\BatchSelectionBundle\Normalizer\ScalarNormalizer;
-use Tito10047\BatchSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
+use Tito10047\PersistentSelectionBundle\Loader\DoctrineCollectionLoader;
+use Tito10047\PersistentSelectionBundle\Normalizer\ObjectNormalizer;
+use Tito10047\PersistentSelectionBundle\Normalizer\ScalarNormalizer;
+use Tito10047\PersistentSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
 
 class DoctrineCollectionLoaderTest extends AssetMapperKernelTestCase
 {

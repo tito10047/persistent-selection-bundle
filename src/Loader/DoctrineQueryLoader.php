@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tito10047\BatchSelectionBundle\Loader;
+namespace Tito10047\PersistentSelectionBundle\Loader;
 
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 use InvalidArgumentException;
 use RuntimeException;
-use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
+use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 
 /**
  * Loader responsible for extracting identifiers and counts from a Doctrine ORM Query object.

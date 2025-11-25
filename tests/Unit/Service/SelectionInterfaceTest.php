@@ -1,16 +1,16 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Unit\Service;
+namespace Tito10047\PersistentSelectionBundle\Tests\Unit\Service;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
-use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
-use Tito10047\BatchSelectionBundle\Normalizer\ScalarNormalizer;
-use Tito10047\BatchSelectionBundle\Service\Selection;
-use Tito10047\BatchSelectionBundle\Service\SelectionInterface;
-use Tito10047\BatchSelectionBundle\Storage\SessionStorage;
-use Tito10047\BatchSelectionBundle\Tests\Trait\SessionInterfaceTrait;
+use Tito10047\PersistentSelectionBundle\Enum\SelectionMode;
+use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
+use Tito10047\PersistentSelectionBundle\Normalizer\ScalarNormalizer;
+use Tito10047\PersistentSelectionBundle\Service\Selection;
+use Tito10047\PersistentSelectionBundle\Service\SelectionInterface;
+use Tito10047\PersistentSelectionBundle\Storage\SessionStorage;
+use Tito10047\PersistentSelectionBundle\Tests\Trait\SessionInterfaceTrait;
 
 class SelectionInterfaceTest  extends TestCase{
 

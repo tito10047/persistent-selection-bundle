@@ -1,6 +1,6 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Service;
+namespace Tito10047\PersistentSelectionBundle\Service;
 
 interface SelectionInterface {
 

@@ -1,9 +1,9 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Factory;
+namespace Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Factory;
 
 use Doctrine\ORM\EntityRepository;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Entity\RecordInteger;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Entity\RecordInteger;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;

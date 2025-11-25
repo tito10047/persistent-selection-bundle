@@ -2,10 +2,10 @@
 declare(strict_types=1);
 
 
-namespace Tito10047\BatchSelectionBundle\Storage;
+namespace Tito10047\PersistentSelectionBundle\Storage;
 
 
-use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
+use Tito10047\PersistentSelectionBundle\Enum\SelectionMode;
 
 /**
  * Defines the contract for persisting selection state.

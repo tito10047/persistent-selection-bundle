@@ -1,10 +1,10 @@
-batch_selection:
+persistent_selection:
     default:
-        normalizer: 'batch_selection.normalizer.object'
+        normalizer: 'persistent_selection.normalizer.object'
         identifier_path: 'id'
-        storage: 'batch_selection.storage.session'
+        storage: 'persistent_selection.storage.session'
     scalar:
-        normalizer: 'batch_selection.normalizer.scalar'
+        normalizer: 'persistent_selection.normalizer.scalar'
     array:
-        normalizer: 'batch_selection.normalizer.array'
+        normalizer: 'persistent_selection.normalizer.array'
         identifier_path: 'id'

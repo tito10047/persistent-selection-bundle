@@ -1,5 +1,5 @@
 {
-  "name": "tito10047/batch-selection-bundle",
+  "name": "tito10047/persistent-selection-bundle",
   "type": "symfony-bundle",
   "license": "MIT",
   "description": "Symfony bundle for handling persistent selections across paginated lists using Session or other storage.",
@@ -34,12 +34,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Tito10047\\BatchSelectionBundle\\": "src/"
+      "Tito10047\\PersistentSelectionBundle\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Tito10047\\BatchSelectionBundle\\Tests\\": "tests/"
+      "Tito10047\\PersistentSelectionBundle\\Tests\\": "tests/"
     }
   },
   "extra": {

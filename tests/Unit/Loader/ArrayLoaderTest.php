@@ -1,11 +1,11 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Unit\Loader;
+namespace Tito10047\PersistentSelectionBundle\Tests\Unit\Loader;
 
 use PHPUnit\Framework\TestCase;
-use Tito10047\BatchSelectionBundle\Loader\ArrayLoader;
-use Tito10047\BatchSelectionBundle\Normalizer\ScalarNormalizer;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Entity\RecordInteger;
+use Tito10047\PersistentSelectionBundle\Loader\ArrayLoader;
+use Tito10047\PersistentSelectionBundle\Normalizer\ScalarNormalizer;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Entity\RecordInteger;
 
 class ArrayLoaderTest extends TestCase
 {

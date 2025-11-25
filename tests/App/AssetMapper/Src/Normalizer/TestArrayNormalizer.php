@@ -1,8 +1,8 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Normalizer;
+namespace Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Normalizer;
 
-use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
+use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 
 /**
  * Jednoduchý testovací normalizer pre polia.

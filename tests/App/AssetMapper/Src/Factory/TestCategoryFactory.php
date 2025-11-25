@@ -1,8 +1,8 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Factory;
+namespace Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Factory;
 
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Entity\TestCategory;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Entity\TestCategory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

@@ -1,9 +1,9 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Unit\Normalizer;
+namespace Tito10047\PersistentSelectionBundle\Tests\Unit\Normalizer;
 
 use PHPUnit\Framework\TestCase;
-use Tito10047\BatchSelectionBundle\Normalizer\ScalarNormalizer;
+use Tito10047\PersistentSelectionBundle\Normalizer\ScalarNormalizer;
 
 class ScalarNormalizerTest extends TestCase
 {

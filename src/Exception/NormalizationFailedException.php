@@ -1,6 +1,6 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Exception;
+namespace Tito10047\PersistentSelectionBundle\Exception;
 
 /**
  * Thrown when the IdentifierResolver cannot find any suitable normalizer

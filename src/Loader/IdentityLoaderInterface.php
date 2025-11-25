@@ -1,8 +1,8 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Loader;
+namespace Tito10047\PersistentSelectionBundle\Loader;
 
-use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
+use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 
 interface IdentityLoaderInterface {
 

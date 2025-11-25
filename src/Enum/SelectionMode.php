@@ -1,6 +1,6 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Enum;
+namespace Tito10047\PersistentSelectionBundle\Enum;
 
 enum SelectionMode: string
 {

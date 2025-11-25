@@ -1,10 +1,10 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src;
+namespace Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src;
 
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
-use Tito10047\BatchSelectionBundle\Service\SelectionManagerInterface;
+use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
+use Tito10047\PersistentSelectionBundle\Service\SelectionManagerInterface;
 use Twig\Loader\LoaderInterface;
 
 class ServiceHelper {
@@ -14,7 +14,7 @@ class ServiceHelper {
 	 * @param LoaderInterface[] $loaders
 	 */
 	public function __construct(
-		#[Autowire(service: 'batch_selection.manager.array')]
+		#[Autowire(service: 'persistent_selection.manager.array')]
 		public readonly SelectionManagerInterface $arraySelectionManager,
 		public readonly iterable $normalizers,
 		public readonly iterable $loaders

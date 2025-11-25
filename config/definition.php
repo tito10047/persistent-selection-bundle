@@ -7,7 +7,7 @@ use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
  */
 return static function (DefinitionConfigurator $definition): void {
     // Konfigurácia bundle:
-    // batch_selection:
+    // persistent_selection:
     //     <selection_name>:
     //         normalizer: '@service_id' | typ položiek (napr. 'scalar'|'object')
     //         identifier_path: 'id' | 'user.id' | atď. (voliteľné)

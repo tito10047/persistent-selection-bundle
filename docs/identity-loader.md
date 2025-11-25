@@ -51,8 +51,8 @@ Example response
 Loader implementation
 
 ```php
-use Tito10047\BatchSelectionBundle\Loader\IdentityLoaderInterface;
-use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
+use Tito10047\PersistentSelectionBundle\Loader\IdentityLoaderInterface;
+use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 
 /**
  * @param array{endpoint:string, query:array, items:array, total:int} $source
@@ -102,17 +102,17 @@ Usage
 
 Register and use
 ```yaml
-batch_selection:
+persistent_selection:
     author:
         loader: App\Normalizer\TagFilteredApiLoader
 
 ```
 ```php
-use \Tito10047\BatchSelectionBundle\Service\SelectionManagerInterface;
+use \Tito10047\PersistentSelectionBundle\Service\SelectionManagerInterface;
 // In your controller/service where you register the source
 class Foo extends \Symfony\Bundle\FrameworkBundle\Controller\AbstractController {
     public function __construct(
-        #[Autowire(service: 'batch_selection.manager.author')]
+        #[Autowire(service: 'persistent_selection.manager.author')]
         private readonly SelectionManagerInterface$selectionManager,
         private readonly App\MyApi $api
     ) {
@@ -131,7 +131,7 @@ class Foo extends \Symfony\Bundle\FrameworkBundle\Controller\AbstractController 
 ```
 
 ```yaml
-{{ batch_selection_row_selector('articles', article) }}
+{{ persistent_selection_row_selector('articles', article) }}
 ```
 
 Notes

@@ -1,10 +1,10 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Loader;
+namespace Tito10047\PersistentSelectionBundle\Loader;
 
 use Doctrine\Common\Collections\Collection;
 use InvalidArgumentException;
-use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
+use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 
 /**
  * Loader responsible for extracting identifiers from Doctrine Collection objects.

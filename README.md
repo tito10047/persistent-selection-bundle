@@ -1,7 +1,7 @@
-![Tests](https://github.com//tito10047/batch-selection-bundle/actions/workflows/symfony.yml/badge.svg)
+![Tests](https://github.com//tito10047/persistent-selection-bundle/actions/workflows/symfony.yml/badge.svg)
 
 
-# 🛒 Batch Selection Bundle
+# 🛒 Persistent Selection Bundle
 
 <p align="center">
 <img src="docs/screenshot.png"><br>
@@ -42,23 +42,23 @@ Make true "Select All" and persistent multi‑page selection effortless in Symfo
 ### 1) Configure the bundle
 
 ```yaml
-# config/packages/batch_selection.yaml
-batch_selection:
+# config/packages/persistent_selection.yaml
+persistent_selection:
     default:
-        normalizer: 'batch_selection.normalizer.object'
+        normalizer: 'persistent_selection.normalizer.object'
         identifier_path: 'id'
-        storage: 'batch_selection.storage.session'
+        storage: 'persistent_selection.storage.session'
     scalar:
-        normalizer: 'batch_selection.normalizer.scalar'
+        normalizer: 'persistent_selection.normalizer.scalar'
     array:
-        normalizer: 'batch_selection.normalizer.array'
+        normalizer: 'persistent_selection.normalizer.array'
         identifier_path: 'id'
 ```
 
 ```yaml
-# config/routes/batch_selection.yaml
-batch_selection:
-    resource: '@BatchSelectionBundle/config/routes.php'
+# config/routes/persistent_selection.yaml
+persistent_selection:
+    resource: '@PersistentSelectionBundle/config/routes.php'
 ```
 
 ### 2) Register a source (Doctrine QueryBuilder)
@@ -111,13 +111,13 @@ final class LogList extends AbstractController
 ### 3) Wire up the UI (Twig + Stimulus)
 
 ```twig
-{% set isAllSelected = batch_selection_is_selected_all('main_logs') %}
+{% set isAllSelected = persistent_selection_is_selected_all('main_logs') %}
 {% set isCurrentSelected = true %}
 {% for log in logs %}
-    {% set isCurrentSelected = isCurrentSelected and batch_selection_is_selected('main_logs', log) %}
+    {% set isCurrentSelected = isCurrentSelected and persistent_selection_is_selected('main_logs', log) %}
 {% endfor %}
 
-<table {{ batch_selection_stimulus_controller('main_logs', null, {
+<table {{ persistent_selection_stimulus_controller('main_logs', null, {
     selectAllClass: 'btn-primary',
     unselectAllClass: 'btn-outline-secondary',
 }) }}>
@@ -126,19 +126,19 @@ final class LogList extends AbstractController
         <th colspan="2">
             <button
                 class="btn btn-{% if isCurrentSelected %}primary{% else %}outline-secondary{% endif %} btn-sm text-nowrap m-1"
-                data-action="{{ batch_selection_stimulus_controller_name }}#selectCurrentPage"
+                data-action="{{ persistent_selection_stimulus_controller_name }}#selectCurrentPage"
             >
                 <twig:ux:icon name="bi:check" width="20px" height="20px"/>
                 Select visible
             </button>
             <button
                 class="btn btn-{% if isAllSelected %}primary{% else %}outline-secondary{% endif %} btn-sm text-nowrap m-1"
-                data-action="{{ batch_selection_stimulus_controller_name }}#selectAll"
+                data-action="{{ persistent_selection_stimulus_controller_name }}#selectAll"
             >
                 <twig:ux:icon name="bi:check-all" width="20px" height="20px"/>
                 Select all
             </button>
-            <span class="p-1 text-nowrap">Selected {{ batch_selection_count('main_logs') }} of {{ batch_selection_total('main_logs') }}</span>
+            <span class="p-1 text-nowrap">Selected {{ persistent_selection_count('main_logs') }} of {{ persistent_selection_total('main_logs') }}</span>
         </th>
     </tr>
     </thead>
@@ -147,7 +147,7 @@ final class LogList extends AbstractController
     {% for log in logs %}
         <tr>
             <td>
-                {{ batch_selection_row_selector('main_logs', log, { class: 'm-1 align-bottom' }) }}
+                {{ persistent_selection_row_selector('main_logs', log, { class: 'm-1 align-bottom' }) }}
             </td>
             <td>My Row</td>
         </tr>

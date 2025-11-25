@@ -51,7 +51,7 @@ final class Article
 Normalizer: Author from Article
 
 ```php
-use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
+use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 
 final class ArticleAuthorNormalizer implements IdentifierNormalizerInterface
 {
@@ -73,17 +73,17 @@ final class ArticleAuthorNormalizer implements IdentifierNormalizerInterface
 
 Register and use
 ```yaml
-batch_selection:
+persistent_selection:
     author:
         normalizer: App\Normalizer\ArticleAuthorNormalizer
 
 ```
 ```php
-use \Tito10047\BatchSelectionBundle\Service\SelectionManagerInterface;
+use \Tito10047\PersistentSelectionBundle\Service\SelectionManagerInterface;
 // In your controller/service where you register the source
 class Foo extends \Symfony\Bundle\FrameworkBundle\Controller\AbstractController {
     public function __construct(
-        #[Autowire(service: 'batch_selection.manager.author')]
+        #[Autowire(service: 'persistent_selection.manager.author')]
         private readonly SelectionManagerInterface$selectionManager,
         private readonly \Doctrine\ORM\EntityManagerInterface $em
     ) {
@@ -103,7 +103,7 @@ class Foo extends \Symfony\Bundle\FrameworkBundle\Controller\AbstractController 
 ```
 
 ```yaml
-{{ batch_selection_row_selector('articles', article) }}
+{{ persistent_selection_row_selector('articles', article) }}
 ```
 
 Notes

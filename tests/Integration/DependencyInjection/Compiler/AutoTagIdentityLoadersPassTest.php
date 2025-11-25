@@ -1,13 +1,13 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Integration\DependencyInjection\Compiler;
+namespace Tito10047\PersistentSelectionBundle\Tests\Integration\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\ServiceLocator;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Loader\TestListLoader;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Normalizer\TestArrayNormalizer;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\ServiceHelper;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Support\TestList;
-use Tito10047\BatchSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Loader\TestListLoader;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Normalizer\TestArrayNormalizer;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\ServiceHelper;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Support\TestList;
+use Tito10047\PersistentSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
 
 class AutoTagIdentityLoadersPassTest extends AssetMapperKernelTestCase
 {

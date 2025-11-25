@@ -1,10 +1,10 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Service;
+namespace Tito10047\PersistentSelectionBundle\Service;
 
-use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
-use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
-use Tito10047\BatchSelectionBundle\Storage\StorageInterface;
+use Tito10047\PersistentSelectionBundle\Enum\SelectionMode;
+use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
+use Tito10047\PersistentSelectionBundle\Storage\StorageInterface;
 
 final class Selection implements SelectionInterface, SelectionStorageInterface, HasModeInterface {
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Integration\Loader;
+namespace Tito10047\PersistentSelectionBundle\Tests\Integration\Loader;
 
-use Tito10047\BatchSelectionBundle\IdentityResilver\IdentityResolverInterface;
-use Tito10047\BatchSelectionBundle\Loader\ArrayLoader;
-use Tito10047\BatchSelectionBundle\Normalizer\ObjectNormalizer;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Entity\RecordInteger;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Factory\RecordIntegerFactory;
-use Tito10047\BatchSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
+use Tito10047\PersistentSelectionBundle\IdentityResilver\IdentityResolverInterface;
+use Tito10047\PersistentSelectionBundle\Loader\ArrayLoader;
+use Tito10047\PersistentSelectionBundle\Normalizer\ObjectNormalizer;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Entity\RecordInteger;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Factory\RecordIntegerFactory;
+use Tito10047\PersistentSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
 
 class ArrayLoaderTest extends AssetMapperKernelTestCase
 {

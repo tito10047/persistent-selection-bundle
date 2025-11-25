@@ -1,11 +1,11 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Service;
+namespace Tito10047\PersistentSelectionBundle\Service;
 
-use Tito10047\BatchSelectionBundle\Exception\NormalizationFailedException;
-use Tito10047\BatchSelectionBundle\Loader\IdentityLoaderInterface;
-use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
-use Tito10047\BatchSelectionBundle\Storage\StorageInterface;
+use Tito10047\PersistentSelectionBundle\Exception\NormalizationFailedException;
+use Tito10047\PersistentSelectionBundle\Loader\IdentityLoaderInterface;
+use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
+use Tito10047\PersistentSelectionBundle\Storage\StorageInterface;
 
 final class SelectionManager implements SelectionManagerInterface {
 

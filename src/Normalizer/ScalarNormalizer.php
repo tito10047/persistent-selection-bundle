@@ -1,6 +1,6 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Normalizer;
+namespace Tito10047\PersistentSelectionBundle\Normalizer;
 
 use RuntimeException;
 

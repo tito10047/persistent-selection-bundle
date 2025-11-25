@@ -4,29 +4,29 @@ The bundle exposes a small set of Twig helper functions for building selection U
 
 Available functions
 
-1) `batch_selection_is_selected(string key, mixed item, string manager = 'default'): bool`
+1) `persistent_selection_is_selected(string key, mixed item, string manager = 'default'): bool`
 - Returns true if the given `item` is currently selected in the selection identified by `key`.
 - The item is normalized to a scalar ID internally (via the configured `IdentifierNormalizerInterface`).
 
-2) `batch_selection_is_selected_all(string key, string manager = 'default'): bool`
+2) `persistent_selection_is_selected_all(string key, string manager = 'default'): bool`
 - Returns true if the current mode is “Select All” for the given `key`.
 
-3) `batch_selection_row_selector(string key, mixed item, array attributes = [], string manager = 'default'): string`
+3) `persistent_selection_row_selector(string key, mixed item, array attributes = [], string manager = 'default'): string`
 - Renders a single row checkbox for the given `item`.
 - Returns safe HTML. You can pass HTML attributes in the `attributes` array (e.g. `{'class': 'form-check-input'}`).
 - The checkbox includes data attributes for the Stimulus controller and is auto‑checked when the item is selected.
 
-4) `batch_selection_row_selector_all(string key, array attributes = [], string manager = 'default'): string`
+4) `persistent_selection_row_selector_all(string key, array attributes = [], string manager = 'default'): string`
 - Renders the master “Select All on page / toggle all” checkbox.
 - Returns safe HTML. Accepts additional HTML attributes.
 
-5) `batch_selection_total(string key, string manager = 'default'): int`
+5) `persistent_selection_total(string key, string manager = 'default'): int`
 - Returns the total number of items in the registered source (not just the current page).
 
-6) `batch_selection_count(string key, string manager = 'default'): int`
+6) `persistent_selection_count(string key, string manager = 'default'): int`
 - Returns how many items are currently selected (computed from storage and mode).
 
-7) `batch_selection_stimulus_controller(string key, ?string controller = null, array variables = [], string manager = 'default', bool asArray = false): string|array`
+7) `persistent_selection_stimulus_controller(string key, ?string controller = null, array variables = [], string manager = 'default', bool asArray = false): string|array`
 - Returns HTML attributes for wiring the Stimulus controller to a container element.
 - When `asArray = false` (default), returns a string like `data-controller="…" data-…` ready to be injected into a tag.
 - When `asArray = true`, returns an associative array of attributes.
@@ -34,7 +34,7 @@ Available functions
 
 Global
 
-- `batch_selection_stimulus_controller_name`: The default Stimulus controller name to be used in `data-action` or `data-target` attributes.
+- `persistent_selection_stimulus_controller_name`: The default Stimulus controller name to be used in `data-action` or `data-target` attributes.
 
 Attribute merging rules
 
@@ -48,13 +48,13 @@ Examples
 Basic table with row selectors
 
 ```twig
-{% set isAllSelected = batch_selection_is_selected_all('articles') %}
+{% set isAllSelected = persistent_selection_is_selected_all('articles') %}
 
-<table {{ batch_selection_stimulus_controller('articles') }}>
+<table {{ persistent_selection_stimulus_controller('articles') }}>
     <thead>
     <tr>
         <th>
-            {{ batch_selection_row_selector_all('articles', { class: 'form-check-input' }) }}
+            {{ persistent_selection_row_selector_all('articles', { class: 'form-check-input' }) }}
         </th>
         <th>Title</th>
     </tr>
@@ -63,7 +63,7 @@ Basic table with row selectors
     {% for article in articles %}
         <tr>
             <td>
-                {{ batch_selection_row_selector('articles', article, { class: 'form-check-input' }) }}
+                {{ persistent_selection_row_selector('articles', article, { class: 'form-check-input' }) }}
             </td>
             <td>{{ article.title }}</td>
         </tr>
@@ -72,21 +72,21 @@ Basic table with row selectors
 </table>
 
 <div class="small text-muted mt-2">
-    Selected {{ batch_selection_count('articles') }} of {{ batch_selection_total('articles') }}
+    Selected {{ persistent_selection_count('articles') }} of {{ persistent_selection_total('articles') }}
     {% if isAllSelected %}(All mode){% endif %}
     <!-- Use the global name for data-action bindings -->
-    <button class="btn btn-sm btn-outline-secondary" data-action="{{ batch_selection_stimulus_controller_name }}#selectCurrentPage">Select visible</button>
-    <button class="btn btn-sm btn-outline-secondary" data-action="{{ batch_selection_stimulus_controller_name }}#selectAll">Select all</button>
-    <button class="btn btn-sm btn-outline-secondary" data-action="{{ batch_selection_stimulus_controller_name }}#unselectAll">Unselect all</button>
-    <button class="btn btn-sm btn-outline-secondary" data-action="{{ batch_selection_stimulus_controller_name }}#clear">Clear</button>
-    <button class="btn btn-sm btn-outline-secondary" data-action="{{ batch_selection_stimulus_controller_name }}#selectRange">Select range</button>
+    <button class="btn btn-sm btn-outline-secondary" data-action="{{ persistent_selection_stimulus_controller_name }}#selectCurrentPage">Select visible</button>
+    <button class="btn btn-sm btn-outline-secondary" data-action="{{ persistent_selection_stimulus_controller_name }}#selectAll">Select all</button>
+    <button class="btn btn-sm btn-outline-secondary" data-action="{{ persistent_selection_stimulus_controller_name }}#unselectAll">Unselect all</button>
+    <button class="btn btn-sm btn-outline-secondary" data-action="{{ persistent_selection_stimulus_controller_name }}#clear">Clear</button>
+    <button class="btn btn-sm btn-outline-secondary" data-action="{{ persistent_selection_stimulus_controller_name }}#selectRange">Select range</button>
   </div>
 ```
 
 Custom controller and variables
 
 ```twig
-<div {{ batch_selection_stimulus_controller('articles', 'my-custom-controller', {
+<div {{ persistent_selection_stimulus_controller('articles', 'my-custom-controller', {
     selectAllClass: 'btn-primary',
     unselectAllClass: 'btn-outline-secondary',
 }) }}>

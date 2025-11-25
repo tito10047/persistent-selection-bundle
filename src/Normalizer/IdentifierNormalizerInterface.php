@@ -1,6 +1,6 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Normalizer;
+namespace Tito10047\PersistentSelectionBundle\Normalizer;
 
 /**
  * Defines the contract for converting a complex item (like an entity or UUID object)

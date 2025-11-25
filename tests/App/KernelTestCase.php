@@ -1,6 +1,6 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\App;
+namespace Tito10047\PersistentSelectionBundle\Tests\App;
 
 use Symfony\Component\HttpKernel\KernelInterface;
 

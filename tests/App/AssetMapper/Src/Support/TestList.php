@@ -1,6 +1,6 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Support;
+namespace Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Support;
 
 /**
  * Jednoduchý wrapper okolo zoznamu položiek (polia s kľúčom 'id').

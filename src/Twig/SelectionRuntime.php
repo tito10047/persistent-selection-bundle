@@ -1,16 +1,16 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Twig;
+namespace Tito10047\PersistentSelectionBundle\Twig;
 
 use InvalidArgumentException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Tito10047\BatchSelectionBundle\BatchSelectionBundle;
-use Tito10047\BatchSelectionBundle\Service\SelectionManagerInterface;
+use Tito10047\PersistentSelectionBundle\PersistentSelectionBundle;
+use Tito10047\PersistentSelectionBundle\Service\SelectionManagerInterface;
 use Twig\Extension\RuntimeExtensionInterface;
 
 final class SelectionRuntime implements RuntimeExtensionInterface {
 
-	private string $controllerName = BatchSelectionBundle::STIMULUS_CONTROLLER;
+	private string $controllerName = PersistentSelectionBundle::STIMULUS_CONTROLLER;
 
 	/**
 	 * @param iterable<SelectionManagerInterface> $selectionManagers
@@ -22,9 +22,9 @@ final class SelectionRuntime implements RuntimeExtensionInterface {
 	}
 
 	public function getStimulusController(string $key, ?string $controller = null, array $variables = [], string $manager = 'default', bool $asArray = false): string|array {
-		$toggleUrl    = $this->router->generate('batch_selection_toggle');
-		$selectAllUrl = $this->router->generate('batch_selection_select_all');
-		$selectRange  = $this->router->generate('batch_selection_select_range');
+		$toggleUrl    = $this->router->generate('persistent_selection_toggle');
+		$selectAllUrl = $this->router->generate('persistent_selection_select_all');
+		$selectRange  = $this->router->generate('persistent_selection_select_range');
 
 
 		$myAttributes = [

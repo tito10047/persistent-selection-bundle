@@ -1,10 +1,10 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Integration\Loader;
+namespace Tito10047\PersistentSelectionBundle\Tests\Integration\Loader;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Tito10047\BatchSelectionBundle\Loader\DoctrineCollectionLoader;
-use Tito10047\BatchSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
+use Tito10047\PersistentSelectionBundle\Loader\DoctrineCollectionLoader;
+use Tito10047\PersistentSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
 
 class DoctrineCollectionLoaderTest extends AssetMapperKernelTestCase
 {

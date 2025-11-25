@@ -52,7 +52,7 @@ CREATE UNIQUE INDEX selection_state_user_context_idx ON selection_state(user_id,
 Entity (simplified)
 
 ```php
-use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
+use Tito10047\PersistentSelectionBundle\Enum\SelectionMode;
 
 final class SelectionState
 {
@@ -73,8 +73,8 @@ DoctrineStorage implementation
 
 ```php
 use Doctrine\ORM\EntityManagerInterface;
-use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
-use Tito10047\BatchSelectionBundle\Storage\StorageInterface;
+use Tito10047\PersistentSelectionBundle\Enum\SelectionMode;
+use Tito10047\PersistentSelectionBundle\Storage\StorageInterface;
 
 final class DoctrineStorage implements StorageInterface
 {

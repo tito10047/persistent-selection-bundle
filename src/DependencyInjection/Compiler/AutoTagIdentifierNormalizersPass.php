@@ -1,14 +1,14 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\DependencyInjection\Compiler;
+namespace Tito10047\PersistentSelectionBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
+use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface;
 
 /**
- * Automatically adds the batch_selection.identifier_normalizer tag to any
+ * Automatically adds the persistent_selection.identifier_normalizer tag to any
  * service definition whose class implements IdentifierNormalizerInterface,
  * even in the host application using this bundle.
  *
@@ -18,7 +18,7 @@ use Tito10047\BatchSelectionBundle\Normalizer\IdentifierNormalizerInterface;
  */
 final class AutoTagIdentifierNormalizersPass implements CompilerPassInterface
 {
-    public const TAG = 'batch_selection.identifier_normalizer';
+    public const TAG = 'persistent_selection.identifier_normalizer';
 
     public function process(ContainerBuilder $container): void
     {

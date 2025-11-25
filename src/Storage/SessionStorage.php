@@ -1,20 +1,20 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Storage;
+namespace Tito10047\PersistentSelectionBundle\Storage;
 
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
-use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
+use Tito10047\PersistentSelectionBundle\Enum\SelectionMode;
 
 /**
  * Default storage implementation using Symfony Session.
  *
  * Data structure in session:
  * [
- * 		'_batch_selection_{context}' => [
+ * 		'_persistent_selection_{context}' => [
  * 			'mode'=> 'include', // value of SelectionMode enum
  * 			'ids'=> [1, 2, 5]
  * 		]
@@ -22,7 +22,7 @@ use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
  */
 final class SessionStorage implements StorageInterface
 {
-    private const SESSION_PREFIX = '_batch_selection_';
+    private const SESSION_PREFIX = '_persistent_selection_';
 
     /**
      * Fallback session used when there is no active HTTP session available (e.g. CLI/tests).

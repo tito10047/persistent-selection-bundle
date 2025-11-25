@@ -1,14 +1,14 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\DependencyInjection\Compiler;
+namespace Tito10047\PersistentSelectionBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Tito10047\BatchSelectionBundle\Loader\IdentityLoaderInterface;
+use Tito10047\PersistentSelectionBundle\Loader\IdentityLoaderInterface;
 
 /**
- * Automatically adds the batch_selection.identity_loader tag to any
+ * Automatically adds the persistent_selection.identity_loader tag to any
  * service definition whose class implements IdentityLoaderInterface,
  * even in the host application using this bundle.
  *
@@ -16,7 +16,7 @@ use Tito10047\BatchSelectionBundle\Loader\IdentityLoaderInterface;
  */
 final class AutoTagIdentityLoadersPass implements CompilerPassInterface
 {
-    public const TAG = 'batch_selection.identity_loader';
+    public const TAG = 'persistent_selection.identity_loader';
 
     public function process(ContainerBuilder $container): void
     {

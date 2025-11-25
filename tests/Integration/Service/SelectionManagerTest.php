@@ -1,16 +1,16 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Integration\Service;
+namespace Tito10047\PersistentSelectionBundle\Tests\Integration\Service;
 
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
-use Tito10047\BatchSelectionBundle\Exception\NormalizationFailedException;
-use Tito10047\BatchSelectionBundle\Service\SelectionInterface;
-use Tito10047\BatchSelectionBundle\Service\SelectionManagerInterface;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\ServiceHelper;
-use Tito10047\BatchSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Support\TestList;
-use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
+use Tito10047\PersistentSelectionBundle\Exception\NormalizationFailedException;
+use Tito10047\PersistentSelectionBundle\Service\SelectionInterface;
+use Tito10047\PersistentSelectionBundle\Service\SelectionManagerInterface;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\ServiceHelper;
+use Tito10047\PersistentSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Support\TestList;
+use Tito10047\PersistentSelectionBundle\Enum\SelectionMode;
 use function Zenstruck\Foundry\object;
 
 class SelectionManagerTest extends AssetMapperKernelTestCase
@@ -20,7 +20,7 @@ class SelectionManagerTest extends AssetMapperKernelTestCase
         $container = self::getContainer();
 
         /** @var SelectionManagerInterface $manager */
-        $manager = $container->get('batch_selection.manager.scalar');
+        $manager = $container->get('persistent_selection.manager.scalar');
         $this->assertInstanceOf(SelectionManagerInterface::class, $manager);
 
         // Use the test normalizer that supports type "array" and requires identifierPath
@@ -61,7 +61,7 @@ class SelectionManagerTest extends AssetMapperKernelTestCase
         $container = self::getContainer();
 
         /** @var SelectionManagerInterface $manager */
-        $manager = $container->get('batch_selection.manager.default');
+        $manager = $container->get('persistent_selection.manager.default');
         $this->assertInstanceOf(SelectionManagerInterface::class, $manager);
 
         $this->expectException(\InvalidArgumentException::class);
@@ -100,7 +100,7 @@ class SelectionManagerTest extends AssetMapperKernelTestCase
 		$container = self::getContainer();
 
 		/** @var SelectionManagerInterface $manager */
-		$manager = $container->get('batch_selection.manager.'.$service);
+		$manager = $container->get('persistent_selection.manager.'.$service);
 
 		$this->expectException(NormalizationFailedException::class);
 		$manager->registerSource("array_key_2",$data);
@@ -111,7 +111,7 @@ class SelectionManagerTest extends AssetMapperKernelTestCase
         $container = self::getContainer();
 
         /** @var SelectionManagerInterface $manager */
-        $manager = $container->get('batch_selection.manager.array');
+        $manager = $container->get('persistent_selection.manager.array');
         $this->assertInstanceOf(SelectionManagerInterface::class, $manager);
 
         $data = [

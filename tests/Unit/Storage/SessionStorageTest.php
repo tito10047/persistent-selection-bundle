@@ -1,12 +1,12 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Unit\Storage;
+namespace Tito10047\PersistentSelectionBundle\Tests\Unit\Storage;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Tito10047\BatchSelectionBundle\Enum\SelectionMode;
-use Tito10047\BatchSelectionBundle\Storage\SessionStorage;
-use Tito10047\BatchSelectionBundle\Tests\Trait\SessionInterfaceTrait;
+use Tito10047\PersistentSelectionBundle\Enum\SelectionMode;
+use Tito10047\PersistentSelectionBundle\Storage\SessionStorage;
+use Tito10047\PersistentSelectionBundle\Tests\Trait\SessionInterfaceTrait;
 
 class SessionStorageTest extends TestCase
 {

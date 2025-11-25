@@ -1,11 +1,11 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Unit\Normalizer;
+namespace Tito10047\PersistentSelectionBundle\Tests\Unit\Normalizer;
 
 use PHPUnit\Framework\TestCase;
-use Tito10047\BatchSelectionBundle\Normalizer\ObjectNormalizer;
-use Tito10047\BatchSelectionBundle\Tests\App\AssetMapper\Src\Entity\RecordInteger;
-use Tito10047\BatchSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
+use Tito10047\PersistentSelectionBundle\Normalizer\ObjectNormalizer;
+use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Entity\RecordInteger;
+use Tito10047\PersistentSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
 
 class ObjectNormalizerTest extends TestCase
 {

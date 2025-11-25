@@ -1,2 +1,2 @@
-batch_selection:
-    resource: '@BatchSelectionBundle/config/routes.php'
+persistent_selection:
+    resource: '@PersistentSelectionBundle/config/routes.php'

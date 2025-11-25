@@ -1,14 +1,14 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Unit\Controller;
+namespace Tito10047\PersistentSelectionBundle\Tests\Unit\Controller;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Tito10047\BatchSelectionBundle\Controller\SelectController;
-use Tito10047\BatchSelectionBundle\Service\SelectionInterface;
-use Tito10047\BatchSelectionBundle\Service\SelectionManagerInterface;
+use Tito10047\PersistentSelectionBundle\Controller\SelectController;
+use Tito10047\PersistentSelectionBundle\Service\SelectionInterface;
+use Tito10047\PersistentSelectionBundle\Service\SelectionManagerInterface;
 
 class SelectControllerTest extends TestCase {
 

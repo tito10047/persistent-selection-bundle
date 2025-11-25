@@ -1,6 +1,6 @@
 <?php
 
-namespace Tito10047\BatchSelectionBundle\Tests\Trait;
+namespace Tito10047\PersistentSelectionBundle\Tests\Trait;
 
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
