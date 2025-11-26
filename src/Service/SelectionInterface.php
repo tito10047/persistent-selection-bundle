@@ -15,6 +15,17 @@ interface SelectionInterface {
 
 	public function unselect(mixed $item): static;
 
+
+	/**
+	 * Prepína stav položky (napríklad aktivovanie/deaktivovanie) s možnosťou pripojiť metadata.
+	 *
+	 * @param mixed             $item     Položka na prepnutie stavu (Entity, Objekt alebo ID).
+	 * @param null|array|object $metadata Dodatočné informácie alebo nastavenia priradené k položke.
+	 *
+	 * @return bool Vráti nový stav.
+	 */
+	public function toggle(mixed $item, null|array|object $metadata=null): bool;
+
 	/**
 	 * Zvolí viacero položiek naraz, pričom každej môže priradiť špecifické metadata.
 	 *

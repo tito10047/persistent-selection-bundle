@@ -110,6 +110,18 @@ final class Selection implements SelectionInterface, HasModeInterface, RegisterS
 		return $this;
 	}
 
+	/**
+	 * Prepne stav položky a vráti nový stav (true = vybraný, false = nevybraný).
+	 */
+	public function toggle(mixed $item, null|array|object $metadata = null): bool {
+		if ($this->isSelected($item)) {
+			$this->unselect($item);
+			return false;
+		}
+		$this->select($item, $metadata);
+		return true;
+	}
+
 	public function getSelectedIdentifiers(): array {
 		if ($this->storage->getMode($this->key) === SelectionMode::INCLUDE) {
 			return $this->storage->getStored($this->key);

@@ -206,9 +206,9 @@ class SelectionInterfaceTest  extends TestCase{
      // ttl 1 second
      $selection->registerSource('src1', [1, 2, 3], 1);
      $this->assertTrue($selection->hasSource('src1'));
-
-     // wait for expiry
-     sleep(2);
+    
+    // wait for expiry
+    sleep(2);
      $this->assertFalse($selection->hasSource('src1'));
  }
 
@@ -222,7 +222,48 @@ class SelectionInterfaceTest  extends TestCase{
      $selection->registerSource('src2', [4, 5], $interval);
      $this->assertTrue($selection->hasSource('src2'));
 
-     sleep(2);
-     $this->assertFalse($selection->hasSource('src2'));
- }
+        sleep(2);
+        $this->assertFalse($selection->hasSource('src2'));
+    }
+    public function testToggleInIncludeModeWithMetadata(): void
+    {
+        $selection = new Selection('ctx_toggle_include', null, $this->storage, $this->normalizer, $this->converter);
+
+        // Initially not selected
+        $this->assertFalse($selection->isSelected(101));
+
+        // Toggle to select with metadata
+        $newState = $selection->toggle(101, ['qty' => 5]);
+        $this->assertTrue($newState);
+        $this->assertTrue($selection->isSelected(101));
+        $this->assertSame(['qty' => 5], $selection->getMetadata(101));
+
+        // Toggle again to unselect
+        $newState = $selection->toggle(101);
+        $this->assertFalse($newState);
+        $this->assertFalse($selection->isSelected(101));
+        $this->assertNull($selection->getMetadata(101));
+    }
+
+    public function testToggleInExcludeMode(): void
+    {
+        $selection = new Selection('ctx_toggle_exclude', null, $this->storage, $this->normalizer, $this->converter);
+
+        // Define universe and switch to EXCLUDE => everything remembered is selected by default
+        $selection->rememberAll([1, 2, 3]);
+        $selection->setMode(SelectionMode::EXCLUDE);
+
+        // Initially selected (not excluded yet)
+        $this->assertTrue($selection->isSelected(1));
+
+        // Toggle should unselect (i.e., add to exclusion list)
+        $state = $selection->toggle(1);
+        $this->assertFalse($state);
+        $this->assertFalse($selection->isSelected(1));
+
+        // Toggle again should select (remove from exclusion list)
+        $state = $selection->toggle(1);
+        $this->assertTrue($state);
+        $this->assertTrue($selection->isSelected(1));
+    }
 }
