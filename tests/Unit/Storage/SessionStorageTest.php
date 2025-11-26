@@ -98,7 +98,11 @@ class SessionStorageTest extends TestCase
         $ctx = 'ctx_meta';
 
         $meta = ['foo' => 'bar', 'n' => 1];
-        $this->storage->add($ctx, [1, 2], $meta);
+        // New API: third parameter is an associative map id => metadata
+        $this->storage->add($ctx, [1, 2], [
+            1 => $meta,
+            2 => $meta,
+        ]);
 
         // Non-overwritten metadata persists per id
         $this->assertSame($meta, $this->storage->getMetadata($ctx, 1));
@@ -125,7 +129,11 @@ class SessionStorageTest extends TestCase
     {
         $ctx = 'ctx_remove_meta';
         $meta = ['x' => 10];
-        $this->storage->add($ctx, [10, 11], $meta);
+        // New API: provide map for both ids
+        $this->storage->add($ctx, [10, 11], [
+            10 => $meta,
+            11 => $meta,
+        ]);
         $this->storage->remove($ctx, [10]);
 
         $this->assertSame([11], $this->storage->getStored($ctx));

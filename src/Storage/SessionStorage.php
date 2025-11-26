@@ -37,26 +37,24 @@ final class SessionStorage implements StorageInterface
 		private readonly RequestStack $requestStack
 	) {}
 
-	public function add(string $context, array $ids, ?array $metadata): void
+	public function add(string $context, array $ids, ?array $idMetadataMap): void
 	{
 		$data = $this->loadData($context);
 
-		// Merge new IDs with existing ones
-		$merged = array_merge($data['ids'], $ids);
+		$mergedIds = array_merge($data['ids'], $ids);
 
-		// Remove duplicates and re-index the array to ensure it's a list, not a map
-		$data['ids'] = array_values(array_unique($merged));
+		$data['ids'] = array_values(array_unique($mergedIds));
 
-		// If metadata provided, assign same metadata array to all added IDs
-		if ($metadata !== null) {
-			foreach ($ids as $id) {
-				// use string keys to have consistent array keys in session
-				$data['meta'][(string)$id] = $metadata;
+		if ($idMetadataMap) {
+			foreach ($idMetadataMap as $id => $meta) {
+				// Pre istotu castujeme kľúč na string, aby bol v JSONe konzistentný
+				$data['meta'][(string)$id] = $meta;
 			}
 		}
 
 		$this->saveData($context, $data);
 	}
+
 
 	public function remove(string $context, array $ids): void
 	{

@@ -33,13 +33,14 @@ final class Selection implements SelectionInterface, HasModeInterface, RegisterS
 				? $this->metadataConverter->convertToStorable($metadata)
 				: $metadata;
 		}
-		if ($mode === SelectionMode::INCLUDE) {
-			$this->storage->add($this->key, [$id], $metaArray);
-		} else {
-			// In EXCLUDE mode, selecting means removing the id from the exclusion list
-			$this->storage->remove($this->key, [$id]);
-		}
-		return $this;
+  if ($mode === SelectionMode::INCLUDE) {
+            // SessionStorage::add now expects a map [id => metadata]
+            $this->storage->add($this->key, [$id], $metaArray !== null ? [$id => $metaArray] : null);
+        } else {
+            // In EXCLUDE mode, selecting means removing the id from the exclusion list
+            $this->storage->remove($this->key, [$id]);
+        }
+        return $this;
 	}
 
 	public function unselect(mixed $item): static {
@@ -69,20 +70,24 @@ final class Selection implements SelectionInterface, HasModeInterface, RegisterS
 		}
 		// metadata provided: support map [id => array|object]
 		// Additionally, support pattern: (per-id map) + (associative defaults), e.g. [1=>meta1, 2=>meta2] + ['x'=>0]
-		foreach ($items as $item) {
-			$id = is_scalar($item) ? $item : $this->normalizer->normalize($item, $this->identifierPath);
+        foreach ($items as $item) {
+            $id = is_scalar($item) ? $item : $this->normalizer->normalize($item, $this->identifierPath);
 
-			$metaForId = null;
-			if (array_key_exists($id, $metadata) || array_key_exists((string) $id, $metadata)) {
-				$metaForId = $metadata[$id] ?? $metadata[(string) $id];
-			} else {
-				throw new \LogicException("No metadata found for id $id");
-			}
+            $metaForId = null;
+            if (array_key_exists($id, $metadata) || array_key_exists((string) $id, $metadata)) {
+                $metaForId = $metadata[$id] ?? $metadata[(string) $id];
+            } else {
+                throw new \LogicException("No metadata found for id $id");
+            }
 
-			$this->storage->add($this->key, [$id], $metaForId);
-		}
-		return $this;
-	}
+            // Convert object metadata and pass as [id => meta]
+            if (is_object($metaForId)) {
+                $metaForId = $this->metadataConverter->convertToStorable($metaForId);
+            }
+            $this->storage->add($this->key, [$id], [$id => $metaForId]);
+        }
+        return $this;
+    }
 
 	public function unselectMultiple(array $items): static {
 		$ids = [];
@@ -125,17 +130,17 @@ final class Selection implements SelectionInterface, HasModeInterface, RegisterS
 			: $metadata;
 
 		$mode = $this->storage->getMode($this->key);
-		if ($mode === SelectionMode::INCLUDE) {
-			// Ensure metadata is persisted for this id (and id is included)
-			$this->storage->add($this->key, [$id], $metaArray);
-			return $this;
-		}
-		// In EXCLUDE mode, metadata can only be stored for explicitly excluded ids
-		if ($this->storage->hasIdentifier($this->key, $id)) {
-			$this->storage->add($this->key, [$id], $metaArray);
-		}
-		return $this;
-	}
+        if ($mode === SelectionMode::INCLUDE) {
+            // Ensure metadata is persisted for this id (and id is included)
+            $this->storage->add($this->key, [$id], [$id => $metaArray]);
+            return $this;
+        }
+        // In EXCLUDE mode, metadata can only be stored for explicitly excluded ids
+        if ($this->storage->hasIdentifier($this->key, $id)) {
+            $this->storage->add($this->key, [$id], [$id => $metaArray]);
+        }
+        return $this;
+    }
 
 	public function getSelected(?string $metadataClass = null): array {
 		$mode = $this->storage->getMode($this->key);
@@ -268,7 +273,7 @@ final class Selection implements SelectionInterface, HasModeInterface, RegisterS
             $meta = ['expiresAt' => $expiresAt];
         }
 
-        $this->storage->add($this->getAllMetaContext(), [$cacheKey], $meta);
+        $this->storage->add($this->getAllMetaContext(), [$cacheKey], $meta !== null ? [$cacheKey => $meta] : null);
 
         return $this;
     }
