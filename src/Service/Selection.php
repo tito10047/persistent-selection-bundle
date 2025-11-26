@@ -33,14 +33,14 @@ final class Selection implements SelectionInterface, HasModeInterface, RegisterS
 				? $this->metadataConverter->convertToStorable($metadata)
 				: $metadata;
 		}
-  if ($mode === SelectionMode::INCLUDE) {
-            // SessionStorage::add now expects a map [id => metadata]
-            $this->storage->add($this->key, [$id], $metaArray !== null ? [$id => $metaArray] : null);
-        } else {
-            // In EXCLUDE mode, selecting means removing the id from the exclusion list
-            $this->storage->remove($this->key, [$id]);
-        }
-        return $this;
+		if ($mode === SelectionMode::INCLUDE) {
+			// SessionStorage::add now expects a map [id => metadata]
+			$this->storage->add($this->key, [$id], $metaArray !== null ? [$id => $metaArray] : null);
+		} else {
+			// In EXCLUDE mode, selecting means removing the id from the exclusion list
+			$this->storage->remove($this->key, [$id]);
+		}
+		return $this;
 	}
 
 	public function unselect(mixed $item): static {
@@ -70,24 +70,24 @@ final class Selection implements SelectionInterface, HasModeInterface, RegisterS
 		}
 		// metadata provided: support map [id => array|object]
 		// Additionally, support pattern: (per-id map) + (associative defaults), e.g. [1=>meta1, 2=>meta2] + ['x'=>0]
-        foreach ($items as $item) {
-            $id = is_scalar($item) ? $item : $this->normalizer->normalize($item, $this->identifierPath);
+		foreach ($items as $item) {
+			$id = is_scalar($item) ? $item : $this->normalizer->normalize($item, $this->identifierPath);
 
-            $metaForId = null;
-            if (array_key_exists($id, $metadata) || array_key_exists((string) $id, $metadata)) {
-                $metaForId = $metadata[$id] ?? $metadata[(string) $id];
-            } else {
-                throw new \LogicException("No metadata found for id $id");
-            }
+			$metaForId = null;
+			if (array_key_exists($id, $metadata) || array_key_exists((string) $id, $metadata)) {
+				$metaForId = $metadata[$id] ?? $metadata[(string) $id];
+			} else {
+				throw new \LogicException("No metadata found for id $id");
+			}
 
-            // Convert object metadata and pass as [id => meta]
-            if (is_object($metaForId)) {
-                $metaForId = $this->metadataConverter->convertToStorable($metaForId);
-            }
-            $this->storage->add($this->key, [$id], [$id => $metaForId]);
-        }
-        return $this;
-    }
+			// Convert object metadata and pass as [id => meta]
+			if (is_object($metaForId)) {
+				$metaForId = $this->metadataConverter->convertToStorable($metaForId);
+			}
+			$this->storage->add($this->key, [$id], [$id => $metaForId]);
+		}
+		return $this;
+	}
 
 	public function unselectMultiple(array $items): static {
 		$ids = [];
@@ -130,17 +130,17 @@ final class Selection implements SelectionInterface, HasModeInterface, RegisterS
 			: $metadata;
 
 		$mode = $this->storage->getMode($this->key);
-        if ($mode === SelectionMode::INCLUDE) {
-            // Ensure metadata is persisted for this id (and id is included)
-            $this->storage->add($this->key, [$id], [$id => $metaArray]);
-            return $this;
-        }
-        // In EXCLUDE mode, metadata can only be stored for explicitly excluded ids
-        if ($this->storage->hasIdentifier($this->key, $id)) {
-            $this->storage->add($this->key, [$id], [$id => $metaArray]);
-        }
-        return $this;
-    }
+		if ($mode === SelectionMode::INCLUDE) {
+			// Ensure metadata is persisted for this id (and id is included)
+			$this->storage->add($this->key, [$id], [$id => $metaArray]);
+			return $this;
+		}
+		// In EXCLUDE mode, metadata can only be stored for explicitly excluded ids
+		if ($this->storage->hasIdentifier($this->key, $id)) {
+			$this->storage->add($this->key, [$id], [$id => $metaArray]);
+		}
+		return $this;
+	}
 
 	public function getSelected(?string $metadataClass = null): array {
 		$mode = $this->storage->getMode($this->key);
@@ -224,57 +224,57 @@ final class Selection implements SelectionInterface, HasModeInterface, RegisterS
 	}
 
 
- public function hasSource(string $cacheKey): bool {
-        // First ensure we have a marker for this source
-        if (!$this->storage->hasIdentifier($this->getAllMetaContext(), $cacheKey)) {
-            return false;
-        }
+	public function hasSource(string $cacheKey): bool {
+		// First ensure we have a marker for this source
+		if (!$this->storage->hasIdentifier($this->getAllMetaContext(), $cacheKey)) {
+			return false;
+		}
 
-        // Check TTL metadata if present
-        $meta = $this->storage->getMetadata($this->getAllMetaContext(), $cacheKey);
-        if (!is_array($meta) || $meta === []) {
-            return true; // no TTL -> considered present
-        }
+		// Check TTL metadata if present
+		$meta = $this->storage->getMetadata($this->getAllMetaContext(), $cacheKey);
+		if (!is_array($meta) || $meta === []) {
+			return true; // no TTL -> considered present
+		}
 
-        if (isset($meta['expiresAt'])) {
-            $expiresAt = (int)$meta['expiresAt'];
-            if ($expiresAt !== 0 && time() >= $expiresAt) {
-                // expired
-                return false;
-            }
-        }
-        return true;
-    }
+		if (isset($meta['expiresAt'])) {
+			$expiresAt = (int) $meta['expiresAt'];
+			if ($expiresAt !== 0 && time() >= $expiresAt) {
+				// expired
+				return false;
+			}
+		}
+		return true;
+	}
 
- public function registerSource(string $cacheKey, mixed $source, int|\DateInterval|null $ttl = null): static {
-        // If source already registered, do nothing
-        if ($this->hasSource($cacheKey)) {
-            return $this;
-        }
+	public function registerSource(string $cacheKey, mixed $source, int|\DateInterval|null $ttl = null): static {
+		// If source already registered, do nothing
+		if ($this->hasSource($cacheKey)) {
+			return $this;
+		}
 
-        // Expecting $source to be an array of scalar identifiers already normalized
-        $ids = is_array($source) ? array_values($source) : [];
-        if (!empty($ids)) {
-            $this->rememberAll($ids);
-        }
+		// Expecting $source to be an array of scalar identifiers already normalized
+		$ids = is_array($source) ? array_values($source) : [];
+		if (!empty($ids)) {
+			$this->rememberAll($ids);
+		}
 
-        // Mark the source as registered in ALL_META context, optionally with TTL metadata
-        $meta = null;
-        if ($ttl !== null) {
-            $expiresAt = 0; // 0 == never expire
-            if ($ttl instanceof \DateInterval) {
-                $expiresAt = (new \DateTimeImmutable('now'))
-                    ->add($ttl)
-                    ->getTimestamp();
-            } else {
-                // int seconds (can be zero or negative -> already expired)
-                $expiresAt = time() + (int)$ttl;
-            }
-            $meta = ['expiresAt' => $expiresAt];
-        }
+		// Mark the source as registered in ALL_META context, optionally with TTL metadata
+		$meta = null;
+		if ($ttl !== null) {
+			$expiresAt = 0; // 0 == never expire
+			if ($ttl instanceof \DateInterval) {
+				$expiresAt = (new \DateTimeImmutable('now'))
+					->add($ttl)
+					->getTimestamp();
+			} else {
+				// int seconds (can be zero or negative -> already expired)
+				$expiresAt = time() + (int) $ttl;
+			}
+			$meta = ['expiresAt' => $expiresAt];
+		}
 
-        $this->storage->add($this->getAllMetaContext(), [$cacheKey], $meta !== null ? [$cacheKey => $meta] : null);
+		$this->storage->add($this->getAllMetaContext(), [$cacheKey], $meta !== null ? [$cacheKey => $meta] : null);
 
-        return $this;
-    }
+		return $this;
+	}
 }
