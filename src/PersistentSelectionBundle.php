@@ -29,12 +29,13 @@ class PersistentSelectionBundle extends AbstractBundle
     
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-      		$container->import('../config/services.php');
+			$container->import('../config/services.php');
 		$services = $container->services();
 		// Default metadata converter service
 		$services->set('persistent_selection.converter.object_vars', ObjectVarsConverter::class)
 			->alias(MetadataConverterInterface::class, 'persistent_selection.converter.object_vars');
-		foreach($config as $name=>$subConfig){
+		$configManagers = $config['managers'] ?? [];
+		foreach($configManagers as $name=>$subConfig){
 			$normalizer = service($subConfig['normalizer']??'persistent_selection.identity_loader');
 			$storage = service($subConfig['storage']??'persistent_selection.storage.session');
 			$identifierPath = $subConfig['identifier_path']??null;
