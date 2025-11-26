@@ -1,6 +1,14 @@
 # GitHub Action for Symfony with MySQL
 name: Tests
-on: [ push, pull_request ]
+on:
+    pull_request:
+        branches: [ main ]
+    push:
+        branches:
+            - '**'
+concurrency:
+    group: ci-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 jobs:
     symfony:
         name: "Tests"
