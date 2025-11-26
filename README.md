@@ -1,43 +1,53 @@
 ![Tests](https://github.com//tito10047/persistent-selection-bundle/actions/workflows/symfony.yml/badge.svg)
 
-
 # 🛒 Persistent Selection Bundle
 
 <p align="center">
-<img src="docs/screenshot.png"><br>
+<img src="docs/preview.png"><br>
 </p>
 
-Make true "Select All" and persistent multi‑page selection effortless in Symfony. This bundle lets users select items across pagination, filters, and even page visits, then run bulk actions reliably without loading entire entities into memory.
+## Make true "Select All" and persistent state management effortless in Symfony.
 
-> ⚠️ Work in progress: Public API may change. Not production‑ready yet.
+**More than just checkboxes.** This bundle provides a robust engine for managing persistent 
+selections and state across sessions, pages, and filters.
 
----
+It allows you to store **IDs + Metadata** (context) efficiently. Whether you need a "Select All" 
+for 50,000 items in an admin grid, a session-based, database-based or any-based, Shopping Cart for
+domains, or simply need to remember which accordion items are expanded—this bundle handles the 
+persistence layer so you don't have to.
 
-## ✨ What you get
-
-- Real Select All across thousands of records (beyond one page)
-- Persisted selection across pages, filters, and revisits
-- Memory‑safe bulk actions (ID‑only processing)
-- Doctrine‑optimized loaders (Pagerfanta adapters supported)
-- Flexible ID normalization (ints, strings, UUIDs, complex types)
-- Modular architecture via `IdentityLoaderInterface`, `IdentifierNormalizerInterface`, and more
+> ⚠️ **v0.1.0 Stable Beta:** Public API is frozen but the bundle is under active development.
 
 ---
 
-## 📌 Use cases (at a glance)
+## ✨ Key Features
 
-- E‑commerce: Select all products in a filtered category, uncheck a few, apply bulk discount
-- Invoicing: Pick invoices across pages, then export selected to ZIP
-- Media library: Infinite scroll, keep selection while organizing or deleting
-- Newsletter: Select thousands of bounced emails in one action
-- HR wizard: Select across steps, confirm only chosen items in the next step
-- Moderation: Quickly approve/ignore across multiple pages
-- CSV import: Select all failed rows, exclude a few, then discard
-- Wishlist/Compare: Persist selected item IDs across browsing
+- **True "Select All":** Efficiently handle selections across thousands of records using Doctrine-optimized loaders (ID-only).
+- **Metadata Support:** Store context with your selection (e.g., `['qty' => 5]` or `['variant' => 'XL']`) alongside the ID.
+- **Context-Aware:** Manage multiple independent selections simultaneously (e.g., `main_grid`, `wishlist`, `user_123_cart`).
+- **Flexible Inputs:** Accepts Entities, UUIDs, Integers, or Strings.
+- **Memory Safe:** Works with scalar IDs internally; hydrates objects only when you need them.
+- **Zero-Config UI:** Includes Twig helpers and Stimulus controllers for instant integration.
 
 ---
 
-## 🚀 Quick start
+## 📌 Use Cases
+
+### 🛠️ Admin & Batch Operations
+
+- **Mass Actions:** Select all users in a filtered view (spanning 50 pages) and apply a "Block" action.
+- **Invoicing:** Select specific invoices across pagination, then export them to a single ZIP.
+- **Inverted Selection:** "Select All" 10,000 items, uncheck 3 specific exceptions, and process the rest.
+
+### 🛒 State & Metadata (New in v0.5.0)
+
+- **Shopping Carts:** Build a domain registrar cart where users select domains (ID) and years (Metadata) without page reloads.
+- **UI Persistence:** Remember which tree-view nodes are expanded or which tabs are active across page refreshes.
+- **Wizards:** Collect items across multiple steps of a wizard before final processing.
+
+---
+
+## 🚀 Quick Start
 
 ### 1) Configure the bundle
 
@@ -45,9 +55,8 @@ Make true "Select All" and persistent multi‑page selection effortless in Symfo
 # config/packages/persistent_selection.yaml
 persistent_selection:
     default:
-        normalizer: 'persistent_selection.normalizer.object'
-        identifier_path: 'id'
-        storage: 'persistent_selection.storage.session'
+        normalizer: 'persistent_selection.normalizer.object' # Auto-detects IDs
+        storage: 'persistent_selection.storage.session'      # Uses PHP Session
     scalar:
         normalizer: 'persistent_selection.normalizer.scalar'
     array:
@@ -61,95 +70,115 @@ persistent_selection:
     resource: '@PersistentSelectionBundle/config/routes.php'
 ```
 
-### 2) Register a source (Doctrine QueryBuilder)
+### 2) Usage in Controller (The Manager Pattern)
+
+The SelectionManager acts as a factory. You request a specific context (e.g., 'event_attendees' or 'my_cart') and interact with that state object.
 
 ```php
 <?php
 
-final class LogList extends AbstractController
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Tito10047\PersistentSelectionBundle\Service\SelectionManagerInterface;
+use App\Entity\Product;
+
+final class CartController extends AbstractController
 {
     public function __construct(
-        private readonly RecordRepository $recordRepo,
         private readonly SelectionManagerInterface $selectionManager,
     ) {}
 
-    public function init(): void
+    public function addToCart(Product $product, Request $request): Response
     {
-        $qb = $this->recordRepo->createQueryBuilder('record')
-            ->where('record.status like :status')
-            ->andWhere('record INSTANCE OF :class')
-            ->andWhere('record.project IN (:projects)')
-            ->setParameter('status', $this->status . '%')
-            ->setParameter('class', $keys)
-            ->setParameter('projects', array_map(fn(Project $p) => $p->getId()->toBinary(), $projects))
-            ->orderBy('record.date', 'DESC')
-            ->setMaxResults(100);
+        // 1. Get the interface for a specific context
+        $cart = $this->selectionManager->getSelection('my_cart');
 
-        // Make this query the selection source identified by "main_logs"
-        $this->selectionManager->registerSource('main_logs', $qb);
+        // 2. Add item with Metadata (Contextual Data)
+        // You can pass null, an array, or a serializable object
+        $cart->select($product, [
+            'quantity' => $request->get('qty', 1),
+            'added_at' => new \DateTime()
+        ]);
+
+        return $this->json(['count' => $cart->getTotal()]);
     }
 
-    public function clearAll(): void
+    public function checkout(): void
     {
-        $ids = $this->selectionManager->getSelection('main_logs')->getSelectedIdentifiers();
+        $cart = $this->selectionManager->getSelection('my_cart');
 
-        $ids = array_map(fn(string $hexId) => (new Uuid($hexId))->toBinary(), $ids);
+        // 3. Retrieve hydrated objects with their metadata
+        // Returns: [ 101 => ['quantity' => 2], 102 => ['quantity' => 1] ]
+        $selectedItems = $cart->getSelectedObjects(); 
+        
+        // ... process checkout logic ...
 
-        $rows = $this->recordRepo->createQueryBuilder('record')
-            ->where('record.id IN (:ids)')
-            ->setParameter('ids', $ids)
-            ->getQuery()->getResult();
-
-        foreach ($rows as $record) {
-            $repo = $this->registry->getRepository($record::class);
-            $repo->clear($record);
-        }
+        // 4. Cleanup
+        $cart->destroy();
     }
 }
 ```
 
-### 3) Wire up the UI (Twig + Stimulus)
+---
+
+### 3) "Select All" with Doctrine Source
+
+For mass actions in Grids, register a source (QueryBuilder) so the bundle knows how to fetch "All" IDs when the user clicks "Select All".
+
+```php
+public function list(SelectionManagerInterface $manager): void
+{
+    $qb = $this->repo->createQueryBuilder('u')->where('u.active = true');
+
+    // Register the source to enable "Select All" functionality for this context
+    $manager->registerSource('user_grid', $qb);
+}
+```
+
+---
+
+### 4) Wire up the UI (Twig)
+
+The bundle provides powerful Twig helpers to check state and retrieve metadata.
 
 ```twig
-{% set isAllSelected = persistent_selection_is_selected_all('main_logs') %}
-{% set isCurrentSelected = true %}
-{% for log in logs %}
-    {% set isCurrentSelected = isCurrentSelected and persistent_selection_is_selected('main_logs', log) %}
-{% endfor %}
+{# Check global state #}
+{% set isAllSelected = persistent_selection_is_selected_all('user_grid') %}
 
-<table {{ persistent_selection_stimulus_controller('main_logs', null, {
-    selectAllClass: 'btn-primary',
-    unselectAllClass: 'btn-outline-secondary',
-}) }}>
+<table>
     <thead>
-    <tr>
-        <th colspan="2">
-            <button
-                class="btn btn-{% if isCurrentSelected %}primary{% else %}outline-secondary{% endif %} btn-sm text-nowrap m-1"
-                data-action="{{ persistent_selection_stimulus_controller_name }}#selectCurrentPage"
-            >
-                <twig:ux:icon name="bi:check" width="20px" height="20px"/>
-                Select visible
-            </button>
-            <button
-                class="btn btn-{% if isAllSelected %}primary{% else %}outline-secondary{% endif %} btn-sm text-nowrap m-1"
-                data-action="{{ persistent_selection_stimulus_controller_name }}#selectAll"
-            >
-                <twig:ux:icon name="bi:check-all" width="20px" height="20px"/>
-                Select all
-            </button>
-            <span class="p-1 text-nowrap">Selected {{ persistent_selection_count('main_logs') }} of {{ persistent_selection_total('main_logs') }}</span>
-        </th>
-    </tr>
+        <tr>
+            <th>
+                {# Stimulus controller handles the UI toggling #}
+                <div {{ persistent_selection_stimulus_controller('user_grid') }}>
+                    <button data-action="{{ persistent_selection_stimulus_controller_name }}#selectAll">Select All</button>
+                    <button data-action="{{ persistent_selection_stimulus_controller_name }}#unselectAll">Unselect All</button>
+                </div>
+            </th>
+            <th>Product</th>
+            <th>Qty</th>
+        </tr>
     </thead>
-
     <tbody>
-    {% for log in logs %}
+    {% for product in products %}
         <tr>
             <td>
-                {{ persistent_selection_row_selector('main_logs', log, { class: 'm-1 align-bottom' }) }}
+                {# Check individual state #}
+                {% if persistent_selection_is_selected('user_grid', product) %}
+                    <input type="checkbox" checked>
+                {% endif %}
             </td>
-            <td>My Row</td>
+            <td>{{ product.name }}</td>
+            <td>
+                {# Retrieve Metadata #}
+                {% set meta = persistent_selection_metadata('user_grid', product) %}
+                
+                {# Access metadata values easily #}
+                {{ meta.quantity|default(0) }}
+            </td>
         </tr>
     {% endfor %}
     </tbody>
@@ -158,12 +187,13 @@ final class LogList extends AbstractController
 
 ---
 
-## 🧠 How it works (in short)
+## 🧠 Architecture
 
-- You register one or more selection sources (e.g., Doctrine `QueryBuilder`)
-- The bundle tracks selected IDs (not full entities) in storage (session by default)
-- Twig helpers and a Stimulus controller provide a minimal, fast UI to select current page or truly select all
-- When executing the bulk action, you read the normalized IDs and act on them efficiently
+- The bundle is built on stable interfaces to ensure long-term compatibility:
+- SelectionManager (Factory): Creates context-aware instances.
+- SelectionInterface (Stateful): The main API (select, unselect, getMetadata).
+- StorageInterface: "Dumb" persistence layer (Session, Redis, DB) handling map storage.
+- MetadataConverter: Handles complex object serialization for metadata.
 
 ---
 
@@ -178,11 +208,4 @@ This documentation covers the most important extension points of the bundle with
 - Twig helpers — UI functions available in templates:
     - See: [docs/twig-selection-extension.md](docs/twig-selection-extension.md)
 
-
----
-
-## 📣 Notes
-
-- Designed for very large datasets; easily extend loaders if you grow beyond 100k items
-- Built for Symfony; integrates via DI/attributes and keeps overhead minimal
-- API may evolve while the bundle is under active development
+    
