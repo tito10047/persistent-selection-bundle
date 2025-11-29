@@ -40,9 +40,9 @@ class SelectController {
 	}
 
 	public function rowSelectorSelectRange(Request $request): Response {
-		$key      = $request->query->getString("key", "");
-		$manager  = $request->query->getString("manager", "");
-		$ids = json_decode($request->getContent(), true);
+		$key     = $request->query->getString("key", "");
+		$manager = $request->query->getString("manager", "");
+		$ids     = json_decode($request->getContent(), true);
 		if (json_last_error() !== JSON_ERROR_NONE || $ids === null) {
 			throw new BadRequestHttpException("Body is not valid json");
 		}

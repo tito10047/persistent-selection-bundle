@@ -7,6 +7,7 @@ use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
 class RecordUuid {
+
 	#[ORM\Column(name: 'id', type: 'uuid', nullable: false)]
 	#[ORM\Id]
 	#[ORM\GeneratedValue(strategy: 'CUSTOM')]

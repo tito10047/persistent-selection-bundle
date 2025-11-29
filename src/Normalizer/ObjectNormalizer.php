@@ -5,15 +5,13 @@ namespace Tito10047\PersistentSelectionBundle\Normalizer;
 use RuntimeException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
-final class ObjectNormalizer implements IdentifierNormalizerInterface
-{
-	public function supports(mixed $item): bool
-	{
+final class ObjectNormalizer implements IdentifierNormalizerInterface {
+
+	public function supports(mixed $item): bool {
 		return is_object($item);
 	}
 
-	public function normalize(mixed $item, ?string $identifierPath): string|int
-	{
+	public function normalize(mixed $item, ?string $identifierPath): string|int {
 		$accessor = PropertyAccess::createPropertyAccessor();
 
 		if (!$accessor->isReadable($item, $identifierPath)) {

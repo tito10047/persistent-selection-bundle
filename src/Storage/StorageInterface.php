@@ -14,12 +14,12 @@ use Tito10047\PersistentSelectionBundle\Enum\SelectionMode;
  * or if they exist in the database. It only persists scalar values (int/string).
  * Complex logic regarding objects/UUIDs must be handled by the Manager layer.
  */
-interface StorageInterface
-{
+interface StorageInterface {
+
 	/**
 	 * Pridá alebo aktualizuje identifikátory a ich pridružené dáta.
 	 *
-	 * @param array<int|string> $ids
+	 * @param array<int|string>        $ids
 	 * @param array<string|int, array> $idMetadataMap Mapa: ID => Konvertované pole metadát
 	 */
 	public function add(string $context, array $ids, ?array $idMetadataMap): void;
@@ -27,8 +27,8 @@ interface StorageInterface
 	/**
 	 * Removes identifiers from the storage for a specific context.
 	 *
-	 * @param string $context The unique context key
-	 * @param array<string|int> $ids List of identifiers to remove
+	 * @param string            $context The unique context key
+	 * @param array<string|int> $ids     List of identifiers to remove
 	 */
 	public function remove(string $context, array $ids): void;
 
@@ -47,28 +47,29 @@ interface StorageInterface
 	 * - If Mode is EXCLUDE: These are the unselected items (exceptions).
 	 *
 	 * @param string $context The unique context key
+	 *
 	 * @return array<string|int>
 	 */
 	public function getStored(string $context): array;
 
-	public function getStoredWithMetadata(string $context):array;
+	public function getStoredWithMetadata(string $context): array;
 
-	public function getMetadata(string $context, string|int $id):array;
+	public function getMetadata(string $context, string|int $id): array;
 
 	/**
 	 * Checks if a specific identifier is present in the storage.
 	 * This checks the raw storage, ignoring the current Mode logic.
 	 *
-	 * @param string $context The unique context key
-	 * @param string|int $id The identifier to check
+	 * @param string     $context The unique context key
+	 * @param string|int $id      The identifier to check
 	 */
 	public function hasIdentifier(string $context, string|int $id): bool;
 
 	/**
 	 * Sets the selection mode (Include vs Exclude).
 	 *
-	 * @param string $context The unique context key
-	 * @param SelectionMode $mode The target mode
+	 * @param string        $context The unique context key
+	 * @param SelectionMode $mode    The target mode
 	 */
 	public function setMode(string $context, SelectionMode $mode): void;
 

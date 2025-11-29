@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Composer\InstalledVersions;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
 
@@ -14,9 +14,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 			'profiling_collect_backtrace' => '%kernel.debug%',
 		],
 		'orm'  => [
-			'naming_strategy'              => 'doctrine.orm.naming_strategy.underscore_number_aware',
-			'auto_mapping'                 => true,
-			'mappings'                     => [
+			'naming_strategy' => 'doctrine.orm.naming_strategy.underscore_number_aware',
+			'auto_mapping'    => true,
+			'mappings'        => [
 				'App' => [
 					'type'      => 'attribute',
 					'is_bundle' => false,
@@ -39,8 +39,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 		InstalledVersions::isInstalled('doctrine/dbal') &&
 		version_compare(InstalledVersions::getVersion('doctrine/dbal'), '4.0.0', '<')
 	) {
-		$testConnectionConfig['use_savepoints'] = true;
-		$configurations['orm']['report_fields_where_declared']=true;
+		$testConnectionConfig['use_savepoints']                = true;
+		$configurations['orm']['report_fields_where_declared'] = true;
 	}
 	// ----------------------------------------------------------------------
 	// 1. GLOBAL KONFIGURÁCIA (zodpovedá hornej časti tvojho yaml)

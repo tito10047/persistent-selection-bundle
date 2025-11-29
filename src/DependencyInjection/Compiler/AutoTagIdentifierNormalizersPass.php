@@ -16,50 +16,49 @@ use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface
  * while still providing a convenient way for apps to plug in their own
  * normalizers without having to remember the tag.
  */
-final class AutoTagIdentifierNormalizersPass implements CompilerPassInterface
-{
-    public const TAG = 'persistent_selection.identifier_normalizer';
+final class AutoTagIdentifierNormalizersPass implements CompilerPassInterface {
 
-    public function process(ContainerBuilder $container): void
-    {
-        $parameterBag = $container->getParameterBag();
+	public const TAG = 'persistent_selection.identifier_normalizer';
 
-        /** @var array<string, Definition> $definitions */
-        $definitions = $container->getDefinitions();
+	public function process(ContainerBuilder $container): void {
+		$parameterBag = $container->getParameterBag();
 
-        foreach ($definitions as $id => $definition) {
-            // Skip non-instantiable or special definitions
-            if ($definition->isAbstract() || $definition->isSynthetic()) {
-                continue;
-            }
+		/** @var array<string, Definition> $definitions */
+		$definitions = $container->getDefinitions();
 
-            // If it already has the tag, skip (idempotent)
-            if ($definition->hasTag(self::TAG)) {
-                continue;
-            }
+		foreach ($definitions as $id => $definition) {
+			// Skip non-instantiable or special definitions
+			if ($definition->isAbstract() || $definition->isSynthetic()) {
+				continue;
+			}
 
-            // Try to resolve the class name
-            $class = $definition->getClass() ?: $id; // Fallback: service id can be FQCN
-            if (!is_string($class) || $class === '') {
-                continue;
-            }
+			// If it already has the tag, skip (idempotent)
+			if ($definition->hasTag(self::TAG)) {
+				continue;
+			}
 
-            // Resolve parameters like "%foo.class%"
-            $class = $parameterBag->resolveValue($class);
-            if (!is_string($class)) {
-                continue;
-            }
+			// Try to resolve the class name
+			$class = $definition->getClass() ?: $id; // Fallback: service id can be FQCN
+			if (!is_string($class) || $class === '') {
+				continue;
+			}
 
-            // Use ContainerBuilder's reflection helper to avoid triggering
-            // autoload errors for vendor/dev classes that may not be present.
-            $reflection = $container->getReflectionClass($class, false);
-            if (!$reflection) {
-                continue; // cannot reflect, skip silently
-            }
+			// Resolve parameters like "%foo.class%"
+			$class = $parameterBag->resolveValue($class);
+			if (!is_string($class)) {
+				continue;
+			}
 
-            if ($reflection->implementsInterface(IdentifierNormalizerInterface::class)) {
-                $definition->addTag(self::TAG)->setPublic(true);
-            }
-        }
-    }
+			// Use ContainerBuilder's reflection helper to avoid triggering
+			// autoload errors for vendor/dev classes that may not be present.
+			$reflection = $container->getReflectionClass($class, false);
+			if (!$reflection) {
+				continue; // cannot reflect, skip silently
+			}
+
+			if ($reflection->implementsInterface(IdentifierNormalizerInterface::class)) {
+				$definition->addTag(self::TAG)->setPublic(true);
+			}
+		}
+	}
 }

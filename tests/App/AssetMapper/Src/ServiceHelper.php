@@ -11,12 +11,13 @@ class ServiceHelper {
 
 	/**
 	 * @param IdentifierNormalizerInterface[] $normalizers
-	 * @param LoaderInterface[] $loaders
+	 * @param LoaderInterface[]               $loaders
 	 */
 	public function __construct(
 		#[Autowire(service: 'persistent_selection.manager.array')]
 		public readonly SelectionManagerInterface $arraySelectionManager,
-		public readonly iterable $normalizers,
-		public readonly iterable $loaders
-	) { }
+		public readonly iterable                  $normalizers,
+		public readonly iterable                  $loaders
+	) {
+	}
 }

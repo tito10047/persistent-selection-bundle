@@ -15,137 +15,153 @@ use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface
  * Loader pre Doctrine QueryBuilder.
  * Zachováva pôvodné WHERE/JOINS a prepisuje len SELECT časť.
  */
-final class DoctrineQueryBuilderLoader implements IdentityLoaderInterface
-{
+final class DoctrineQueryBuilderLoader implements IdentityLoaderInterface {
+
 	public function __construct(
 		private IdentifierNormalizerInterface $arrayNormalizer
-	) { }
+	) {
+	}
 
-	public function supports(mixed $source): bool
-    {
-        return $source instanceof QueryBuilder;
-    }
+	public function supports(mixed $source): bool {
+		return $source instanceof QueryBuilder;
+	}
 
-    /**
-     * @param QueryBuilder $source
-     * @return array<int|string>
-     */
-    public function loadAllIdentifiers(?IdentifierNormalizerInterface $resolver, mixed $source, ?string $identifierPath): array
-    {
-        if (!$this->supports($source)) {
-            throw new InvalidArgumentException('Source must be a Doctrine QueryBuilder instance.');
-        }
+	/**
+	 * @param QueryBuilder $source
+	 *
+	 * @return array<int|string>
+	 */
+	public function loadAllIdentifiers(?IdentifierNormalizerInterface $resolver, mixed $source, ?string $identifierPath): array {
+		if (!$this->supports($source)) {
+			throw new InvalidArgumentException('Source must be a Doctrine QueryBuilder instance.');
+		}
 
-        $baseQb = clone $source;
+		$baseQb = clone $source;
 
-        $em = $baseQb->getEntityManager();
+		$em = $baseQb->getEntityManager();
 
-        $rootAliases = $baseQb->getRootAliases();
-        $rootEntities = $baseQb->getRootEntities();
-        if (empty($rootAliases) || empty($rootEntities)) {
-            // fallback – vytiahni z DQL
-            $query = $baseQb->getQuery();
-            [$rootEntity, $rootAlias] = $this->resolveRootFromDql($query);
-        } else {
-            $rootAlias = $rootAliases[0];
-            $rootEntity = $rootEntities[0];
-        }
+		$rootAliases  = $baseQb->getRootAliases();
+		$rootEntities = $baseQb->getRootEntities();
+		if (empty($rootAliases) || empty($rootEntities)) {
+			// fallback – vytiahni z DQL
+			$query = $baseQb->getQuery();
+			[$rootEntity, $rootAlias] = $this->resolveRootFromDql($query);
+		} else {
+			$rootAlias  = $rootAliases[0];
+			$rootEntity = $rootEntities[0];
+		}
 
-        $metadata = $em->getClassMetadata($rootEntity);
-        $identifierFields = $metadata->getIdentifierFieldNames();
-        if (count($identifierFields) !== 1) {
-            throw new RuntimeException('Composite alebo neštandardný identifikátor nie je podporovaný pre loadAllIdentifiers().');
-        }
+		$metadata         = $em->getClassMetadata($rootEntity);
+		$identifierFields = $metadata->getIdentifierFieldNames();
+		if (count($identifierFields) !== 1) {
+			throw new RuntimeException('Composite alebo neštandardný identifikátor nie je podporovaný pre loadAllIdentifiers().');
+		}
 
-        $defaultIdField = $identifierFields[0];
-        $identifierField = ($identifierPath !== null && $identifierPath !== '') ? $identifierPath : $defaultIdField;
+		$defaultIdField  = $identifierFields[0];
+		$identifierField = ($identifierPath !== null && $identifierPath !== '') ? $identifierPath : $defaultIdField;
 
-        // prepis SELECT, ostatné časti dotazu (WHERE, JOIN, GROUP BY, HAVING, ORDER BY) ponechaj
-        $baseQb->resetDQLPart('select');
-        $baseQb->select($rootAlias . '.' . $identifierField);
+		// prepis SELECT, ostatné časti dotazu (WHERE, JOIN, GROUP BY, HAVING, ORDER BY) ponechaj
+		$baseQb->resetDQLPart('select');
+		$baseQb->select($rootAlias . '.' . $identifierField);
 
-        // ignoruj stránkovanie – chceme všetky identifikátory z danej filtrácie
-        $baseQb->setFirstResult(null);
-        $baseQb->setMaxResults(null);
+		// ignoruj stránkovanie – chceme všetky identifikátory z danej filtrácie
+		$baseQb->setFirstResult(null);
+		$baseQb->setMaxResults(null);
 
-        $rows = $baseQb->getQuery()->getResult();
-        return array_map(function($item)use($identifierPath){
-			return $this->arrayNormalizer->normalize($item, $identifierPath);
-		}, $rows);
-    }
+		// Získaj skalárne výsledky jedného stĺpca
+		$rows   = $baseQb->getQuery()->getScalarResult();
+		$values = array_map('current', $rows);
 
-    /**
-     * @param QueryBuilder $source
-     */
-    public function getTotalCount(mixed $source): int
-    {
-        if (!$this->supports($source)) {
-            throw new InvalidArgumentException('Source must be a Doctrine QueryBuilder instance.');
-        }
+		// Pretypuj podľa Doctrine typu ID poľa, aby sa vracali stabilné typy (int pre integer ID)
+		$fieldType = $metadata->getTypeOfField($identifierField);
+		$values    = array_map(function ($v) use ($fieldType) {
+			return self::castByDoctrineType($v, $fieldType);
+		}, $values);
 
-        $baseQb = clone $source;
+		return $values;
+	}
 
-        $em = $baseQb->getEntityManager();
+	/**
+	 * @param QueryBuilder $source
+	 */
+	public function getTotalCount(mixed $source): int {
+		if (!$this->supports($source)) {
+			throw new InvalidArgumentException('Source must be a Doctrine QueryBuilder instance.');
+		}
 
-        $rootAliases = $baseQb->getRootAliases();
-        $rootEntities = $baseQb->getRootEntities();
-        if (empty($rootAliases) || empty($rootEntities)) {
-            // fallback – vytiahni z DQL
-            $query = $baseQb->getQuery();
-            [$rootEntity, $rootAlias] = $this->resolveRootFromDql($query);
-        } else {
-            $rootAlias = $rootAliases[0];
-            $rootEntity = $rootEntities[0];
-        }
+		$baseQb = clone $source;
 
-        $metadata = $em->getClassMetadata($rootEntity);
-        $identifierFields = $metadata->getIdentifierFieldNames();
+		$em = $baseQb->getEntityManager();
 
-        // COUNT výraz
-        if (count($identifierFields) === 1) {
-            $countExpr = 'COUNT(DISTINCT ' . $rootAlias . '.' . $identifierFields[0] . ')';
-        } else {
-            $countExpr = 'COUNT(' . $rootAlias . ')'; // fallback
-        }
+		$rootAliases  = $baseQb->getRootAliases();
+		$rootEntities = $baseQb->getRootEntities();
+		if (empty($rootAliases) || empty($rootEntities)) {
+			// fallback – vytiahni z DQL
+			$query = $baseQb->getQuery();
+			[$rootEntity, $rootAlias] = $this->resolveRootFromDql($query);
+		} else {
+			$rootAlias  = $rootAliases[0];
+			$rootEntity = $rootEntities[0];
+		}
 
-        // uprav SELECT na COUNT, odstráň orderBy, ignoruj stránkovanie
-        $baseQb->resetDQLPart('select');
-        $baseQb->resetDQLPart('orderBy');
-        $baseQb->select($countExpr);
-        $baseQb->setFirstResult(null);
-        $baseQb->setMaxResults(null);
+		$metadata         = $em->getClassMetadata($rootEntity);
+		$identifierFields = $metadata->getIdentifierFieldNames();
 
-        try {
-            return (int) $baseQb->getQuery()->getSingleScalarResult();
-        } catch (Exception $e) {
-            throw new RuntimeException('Failed to execute count query.', 0, $e);
-        }
-    }
+		// COUNT výraz
+		if (count($identifierFields) === 1) {
+			$countExpr = 'COUNT(DISTINCT ' . $rootAlias . '.' . $identifierFields[0] . ')';
+		} else {
+			$countExpr = 'COUNT(' . $rootAlias . ')'; // fallback
+		}
 
-    /**
-     * Vytiahne root entitu a alias z Query DQL pomocou Doctrine Parsera.
-     *
-     * @return array{0:string,1:string} [entityClass, alias]
-     */
-    private function resolveRootFromDql(Query $query): array
-    {
-        $AST = $query->getAST();
+		// uprav SELECT na COUNT, odstráň orderBy, ignoruj stránkovanie
+		$baseQb->resetDQLPart('select');
+		$baseQb->resetDQLPart('orderBy');
+		$baseQb->select($countExpr);
+		$baseQb->setFirstResult(null);
+		$baseQb->setMaxResults(null);
 
-        /** @var Query\AST\IdentificationVariableDeclaration $from */
-        $from = $AST->fromClause->identificationVariableDeclarations[0] ?? null;
-        if ($from === null || $from->rangeVariableDeclaration === null) {
-            throw new RuntimeException('Nepodarilo sa zistiť root entitu z DQL dotazu.');
-        }
+		try {
+			return (int) $baseQb->getQuery()->getSingleScalarResult();
+		} catch (Exception $e) {
+			throw new RuntimeException('Failed to execute count query.', 0, $e);
+		}
+	}
 
-        $rootEntity = $from->rangeVariableDeclaration->abstractSchemaName;
-        $rootAlias  = $from->rangeVariableDeclaration->aliasIdentificationVariable;
+	/**
+	 * Cast hodnoty podľa Doctrine typu poľa, aby sa napr. integer ID vracali ako int a nie string.
+	 */
+	private static function castByDoctrineType(mixed $value, ?string $doctrineType): int|string {
+		$intTypes = ['integer', 'smallint', 'bigint'];
+		if ($doctrineType !== null && in_array($doctrineType, $intTypes, true)) {
+			return (int) $value;
+		}
+		return is_int($value) || is_string($value) ? $value : (string) $value;
+	}
 
-        if (!is_string($rootEntity) || !is_string($rootAlias)) {
-            throw new RuntimeException('Neplatný FROM klauzula v DQL dotaze.');
-        }
+	/**
+	 * Vytiahne root entitu a alias z Query DQL pomocou Doctrine Parsera.
+	 *
+	 * @return array{0:string,1:string} [entityClass, alias]
+	 */
+	private function resolveRootFromDql(Query $query): array {
+		$AST = $query->getAST();
 
-        return [$rootEntity, $rootAlias];
-    }
+		/** @var Query\AST\IdentificationVariableDeclaration $from */
+		$from = $AST->fromClause->identificationVariableDeclarations[0] ?? null;
+		if ($from === null || $from->rangeVariableDeclaration === null) {
+			throw new RuntimeException('Nepodarilo sa zistiť root entitu z DQL dotazu.');
+		}
+
+		$rootEntity = $from->rangeVariableDeclaration->abstractSchemaName;
+		$rootAlias  = $from->rangeVariableDeclaration->aliasIdentificationVariable;
+
+		if (!is_string($rootEntity) || !is_string($rootAlias)) {
+			throw new RuntimeException('Neplatný FROM klauzula v DQL dotaze.');
+		}
+
+		return [$rootEntity, $rootAlias];
+	}
 
 	public function getCacheKey(mixed $source): string {
 		if (!$this->supports($source)) {
@@ -154,19 +170,19 @@ final class DoctrineQueryBuilderLoader implements IdentityLoaderInterface
 
 		/** @var QueryBuilder $source */
 		// Use the generated DQL from the QB for a stable representation of structure
-		$dql = $source->getQuery()->getDQL();
-		$params = $source->getParameters();
+		$dql        = $source->getQuery()->getDQL();
+		$params     = $source->getParameters();
 		$normParams = [];
 		foreach ($params as $p) {
-			$name = method_exists($p, 'getName') ? $p->getName() : null;
-			$value = method_exists($p, 'getValue') ? $p->getValue() : null;
+			$name         = method_exists($p, 'getName') ? $p->getName() : null;
+			$value        = method_exists($p, 'getValue') ? $p->getValue() : null;
 			$normParams[] = [
-				'name' => $name,
+				'name'  => $name,
 				'value' => self::normalizeValue($value),
 			];
 		}
-		usort($normParams, function($a, $b){
-			return strcmp((string)$a['name'], (string)$b['name']);
+		usort($normParams, function ($a, $b) {
+			return strcmp((string) $a['name'], (string) $b['name']);
 		});
 
 		return 'doctrine_qb:' . md5(serialize([$dql, $normParams]));
@@ -175,8 +191,7 @@ final class DoctrineQueryBuilderLoader implements IdentityLoaderInterface
 	/**
 	 * Normalize values for a deterministic cache key.
 	 */
-	private static function normalizeValue(mixed $value): mixed
-	{
+	private static function normalizeValue(mixed $value): mixed {
 		if (is_scalar($value) || $value === null) {
 			return $value;
 		}
@@ -198,6 +213,6 @@ final class DoctrineQueryBuilderLoader implements IdentityLoaderInterface
 			ksort($vars);
 			return ['__class__' => get_class($value), 'props' => self::normalizeValue($vars)];
 		}
-		return (string)$value;
+		return (string) $value;
 	}
 }

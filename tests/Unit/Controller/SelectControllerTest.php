@@ -14,7 +14,7 @@ class SelectControllerTest extends TestCase {
 
 	private function createControllerWithManager(string $id, string $key, ?SelectionInterface $selection): SelectController {
 
-		if (!$selection){
+		if (!$selection) {
 			$selection = $this->createMock(SelectionInterface::class);
 		}
 
@@ -143,7 +143,7 @@ class SelectControllerTest extends TestCase {
 		// calling manager->getSelection(). Therefore, we must not set an
 		// expectation that getSelection() will be invoked here.
 		/** @var SelectionManagerInterface&MockObject $manager */
-		$manager = $this->createMock(SelectionManagerInterface::class);
+		$manager    = $this->createMock(SelectionManagerInterface::class);
 		$controller = new SelectController(['any' => $manager]);
 
 		$this->expectException(BadRequestHttpException::class);

@@ -65,8 +65,14 @@ final class DoctrineQueryLoader implements IdentityLoaderInterface {
 		// prenes parametre z pôvodného dotazu (aby WHERE ostal funkčný)
 		$idQuery->setParameters($sourceParameters);
 
-		$rows = $idQuery->getScalarResult();
-		return array_map('current', $rows);
+		$rows   = $idQuery->getScalarResult();
+		$values = array_map('current', $rows);
+
+		// Zabezpeč stabilný typ identifikátora podľa Doctrine metadata
+		$fieldType = $metadata->getTypeOfField($identifierField);
+		return array_map(function ($v) use ($fieldType) {
+			return self::castByDoctrineType($v, $fieldType);
+		}, $values);
 	}
 
 	/**
@@ -155,20 +161,20 @@ final class DoctrineQueryLoader implements IdentityLoaderInterface {
 		}
 
 		/** @var Query $source */
-		$dql = $source->getDQL();
-		$params = $source->getParameters(); // Doctrine\Common\Collections\Collection of Parameter
+		$dql        = $source->getDQL();
+		$params     = $source->getParameters(); // Doctrine\Common\Collections\Collection of Parameter
 		$normParams = [];
 		foreach ($params as $p) {
-			$name = method_exists($p, 'getName') ? $p->getName() : null;
-			$value = method_exists($p, 'getValue') ? $p->getValue() : null;
+			$name         = method_exists($p, 'getName') ? $p->getName() : null;
+			$value        = method_exists($p, 'getValue') ? $p->getValue() : null;
 			$normParams[] = [
-				'name' => $name,
+				'name'  => $name,
 				'value' => self::normalizeValue($value),
 			];
 		}
 		// ensure deterministic order
-		usort($normParams, function($a, $b){
-			return strcmp((string)$a['name'], (string)$b['name']);
+		usort($normParams, function ($a, $b) {
+			return strcmp((string) $a['name'], (string) $b['name']);
 		});
 
 		return 'doctrine_query:' . md5(serialize([$dql, $normParams]));
@@ -177,8 +183,7 @@ final class DoctrineQueryLoader implements IdentityLoaderInterface {
 	/**
 	 * Normalize values for a deterministic cache key.
 	 */
-	private static function normalizeValue(mixed $value): mixed
-	{
+	private static function normalizeValue(mixed $value): mixed {
 		if (is_scalar($value) || $value === null) {
 			return $value;
 		}
@@ -201,6 +206,20 @@ final class DoctrineQueryLoader implements IdentityLoaderInterface {
 			ksort($vars);
 			return ['__class__' => get_class($value), 'props' => self::normalizeValue($vars)];
 		}
-		return (string)$value;
+		return (string) $value;
+	}
+
+	/**
+	 * Cast hodnoty podľa Doctrine typu poľa, aby sa napr. integer ID vracali ako int a nie string.
+	 */
+	private static function castByDoctrineType(mixed $value, ?string $doctrineType): int|string {
+		// najčastejšie typy id
+		$intTypes = ['integer', 'smallint', 'bigint'];
+		if ($doctrineType !== null && in_array($doctrineType, $intTypes, true)) {
+			// bigint môže byť mimo rozsahu int, ale v našom projekte ID sú bežné int
+			// ak by bolo treba zachovať bigint ako string, stačilo by to tu vetviť
+			return (int) $value;
+		}
+		return is_int($value) || is_string($value) ? $value : (string) $value;
 	}
 }

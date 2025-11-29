@@ -14,49 +14,48 @@ use Tito10047\PersistentSelectionBundle\Loader\IdentityLoaderInterface;
  *
  * Mirrors the behavior of AutoTagIdentifierNormalizersPass but for loaders.
  */
-final class AutoTagIdentityLoadersPass implements CompilerPassInterface
-{
-    public const TAG = 'persistent_selection.identity_loader';
+final class AutoTagIdentityLoadersPass implements CompilerPassInterface {
 
-    public function process(ContainerBuilder $container): void
-    {
-        $parameterBag = $container->getParameterBag();
+	public const TAG = 'persistent_selection.identity_loader';
 
-        /** @var array<string, Definition> $definitions */
-        $definitions = $container->getDefinitions();
+	public function process(ContainerBuilder $container): void {
+		$parameterBag = $container->getParameterBag();
 
-        foreach ($definitions as $id => $definition) {
-            // Skip non-instantiable or special definitions
-            if ($definition->isAbstract() || $definition->isSynthetic()) {
-                continue;
-            }
+		/** @var array<string, Definition> $definitions */
+		$definitions = $container->getDefinitions();
 
-            // If it already has the tag, skip (idempotent)
-            if ($definition->hasTag(self::TAG)) {
-                continue;
-            }
+		foreach ($definitions as $id => $definition) {
+			// Skip non-instantiable or special definitions
+			if ($definition->isAbstract() || $definition->isSynthetic()) {
+				continue;
+			}
 
-            // Try to resolve the class name
-            $class = $definition->getClass() ?: $id; // FQCN service id fallback
-            if (!is_string($class) || $class === '') {
-                continue;
-            }
+			// If it already has the tag, skip (idempotent)
+			if ($definition->hasTag(self::TAG)) {
+				continue;
+			}
 
-            // Resolve parameters like "%foo.class%"
-            $class = $parameterBag->resolveValue($class);
-            if (!is_string($class)) {
-                continue;
-            }
+			// Try to resolve the class name
+			$class = $definition->getClass() ?: $id; // FQCN service id fallback
+			if (!is_string($class) || $class === '') {
+				continue;
+			}
 
-            // Safe reflection via container helper
-            $reflection = $container->getReflectionClass($class, false);
-            if (!$reflection) {
-                continue;
-            }
+			// Resolve parameters like "%foo.class%"
+			$class = $parameterBag->resolveValue($class);
+			if (!is_string($class)) {
+				continue;
+			}
 
-            if ($reflection->implementsInterface(IdentityLoaderInterface::class)) {
-                $definition->addTag(self::TAG)->setPublic(true);
-            }
-        }
-    }
+			// Safe reflection via container helper
+			$reflection = $container->getReflectionClass($class, false);
+			if (!$reflection) {
+				continue;
+			}
+
+			if ($reflection->implementsInterface(IdentityLoaderInterface::class)) {
+				$definition->addTag(self::TAG)->setPublic(true);
+			}
+		}
+	}
 }

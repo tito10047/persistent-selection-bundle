@@ -5,29 +5,26 @@ namespace Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-class TestCategory
-{
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[ORM\Column(type: 'integer')]
-    private ?int $id = null;
+class TestCategory {
 
-    #[ORM\Column(type: 'string', length: 255, nullable: false)]
-    private string $name;
+	#[ORM\Id]
+	#[ORM\GeneratedValue(strategy: 'IDENTITY')]
+	#[ORM\Column(type: 'integer')]
+	private ?int $id = null;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+	#[ORM\Column(type: 'string', length: 255, nullable: false)]
+	private string $name;
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
+	public function getId(): ?int {
+		return $this->id;
+	}
 
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-        return $this;
-    }
+	public function getName(): string {
+		return $this->name;
+	}
+
+	public function setName(string $name): self {
+		$this->name = $name;
+		return $this;
+	}
 }

@@ -10,7 +10,7 @@ class KernelTestCase extends \Symfony\Bundle\FrameworkBundle\Test\KernelTestCase
 		static::ensureKernelShutdown();
 
 
-        $kernel = new Kernel("test",$options['configDir'] ?? null, $options['preBoot'] ?? null);
+		$kernel = new Kernel("test", $options['configDir'] ?? null, $options['preBoot'] ?? null);
 		$kernel->boot();
 		static::$kernel = $kernel;
 		static::$booted = true;

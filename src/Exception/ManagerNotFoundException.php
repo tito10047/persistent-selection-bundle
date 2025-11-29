@@ -2,6 +2,6 @@
 
 namespace Tito10047\PersistentSelectionBundle\Exception;
 
-class ManagerNotFoundException  extends \RuntimeException{
+class ManagerNotFoundException extends \RuntimeException {
 
 }

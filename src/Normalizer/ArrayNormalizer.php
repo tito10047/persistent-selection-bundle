@@ -3,17 +3,14 @@
 namespace Tito10047\PersistentSelectionBundle\Normalizer;
 
 use RuntimeException;
-use Symfony\Component\PropertyAccess\PropertyAccess;
 
-final class ArrayNormalizer implements IdentifierNormalizerInterface
-{
-	public function supports(mixed $item): bool
-	{
+final class ArrayNormalizer implements IdentifierNormalizerInterface {
+
+	public function supports(mixed $item): bool {
 		return is_array($item);
 	}
 
-	public function normalize(mixed $item, ?string $identifierPath): string|int
-	{
+	public function normalize(mixed $item, ?string $identifierPath): string|int {
 
 		if (is_array($item) && array_key_exists($identifierPath, $item)) {
 			return $item[$identifierPath];

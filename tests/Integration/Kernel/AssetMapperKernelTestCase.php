@@ -4,7 +4,6 @@ namespace Tito10047\PersistentSelectionBundle\Tests\Integration\Kernel;
 
 use Symfony\Component\HttpKernel\KernelInterface;
 use Tito10047\PersistentSelectionBundle\Tests\App\Kernel;
-use Tito10047\PersistentSelectionBundle\Tests\App\KernelTestCase;
 
 class AssetMapperKernelTestCase extends \Symfony\Bundle\FrameworkBundle\Test\KernelTestCase {
 
@@ -12,7 +11,7 @@ class AssetMapperKernelTestCase extends \Symfony\Bundle\FrameworkBundle\Test\Ker
 		static::ensureKernelShutdown();
 
 
-		$kernel = new Kernel("test","AssetMapper/config" ?? null, $options['preBoot'] ?? null);
+		$kernel = new Kernel("test", "AssetMapper/config" ?? null, $options['preBoot'] ?? null);
 		$kernel->boot();
 		static::$kernel = $kernel;
 		static::$booted = true;

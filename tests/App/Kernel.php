@@ -7,6 +7,7 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 class Kernel extends BaseKernel {
+
 	use MicroKernelTrait {
 		registerContainerConfiguration as registerContainerConfigurationTrait;
 	}
@@ -22,39 +23,36 @@ class Kernel extends BaseKernel {
 		}
 	}
 
-    public function bootProject(): void
-    {
-        if (!$this->booted && $this->preBootHandler) {
-            call_user_func_array($this->preBootHandler, [$this]);
-        }
-        parent::boot();
-    }
+	public function bootProject(): void {
+		if (!$this->booted && $this->preBootHandler) {
+			call_user_func_array($this->preBootHandler, [$this]);
+		}
+		parent::boot();
+	}
 
 	/**
 	 * Gets the path to the bundles configuration file.
 	 */
 	private function getBundlesPath(): string {
-		return  __DIR__ . '/' . $this->configDir .'/bundles.php';
+		return __DIR__ . '/' . $this->configDir . '/bundles.php';
 	}
 
 	public function getConfigDir() {
-        if (!$this->configDir) {
-            return __DIR__ . '/config';
-        }
-        return __DIR__ . '/' . $this->configDir;
-    }
+		if (!$this->configDir) {
+			return __DIR__ . '/config';
+		}
+		return __DIR__ . '/' . $this->configDir;
+	}
 
 
-    public function __construct(string $env, private readonly ?string $configDir, private mixed $preBootHandler = null)
-    {
-        parent::__construct($env, true);
+	public function __construct(string $env, private readonly ?string $configDir, private mixed $preBootHandler = null) {
+		parent::__construct($env, true);
 	}
 
 
 	public function getCacheDir(): string {
-        return $this->getProjectDir() . '/var/cache/'.$this->configDir.'/' . $this->environment;
+		return $this->getProjectDir() . '/var/cache/' . $this->configDir . '/' . $this->environment;
 	}
-
 
 
 	public function __destruct() {

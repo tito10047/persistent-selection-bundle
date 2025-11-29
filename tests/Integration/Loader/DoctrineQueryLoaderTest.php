@@ -17,29 +17,31 @@ class DoctrineQueryLoaderTest extends AssetMapperKernelTestCase {
 		$loader = new DoctrineQueryLoader();
 
 		/** @var EntityManagerInterface $em */
-		$em = self::getContainer()->get('doctrine')->getManager();
+		$em    = self::getContainer()->get('doctrine')->getManager();
 		$query = $em->createQueryBuilder()
-				->select('i')
-				->from(RecordInteger::class, 'i')
-				->orderBy('i.id', 'ASC')
-				->setMaxResults(5)
-				->getQuery();
+			->select('i')
+			->from(RecordInteger::class, 'i')
+			->orderBy('i.id', 'ASC')
+			->setMaxResults(5)
+			->getQuery();
 
 		$this->assertTrue($loader->supports($query));
-		$this->assertEquals(10, $loader->getTotalCount($query));
+		$this->assertSame(10, $loader->getTotalCount($query));
 
 		$ids = array_map(fn(RecordInteger $record) => $record->getId(), $records);
 		sort($ids);
 		$foundIds = $loader->loadAllIdentifiers(null, $query, "id");
 		sort($foundIds);
 
-		$this->assertEquals($ids, $foundIds);
+		$this->assertSame($ids, $foundIds);
 
+		// Over, že typy sa nerovnajú: '1' != 1 (striktne)
+		$stringIds = array_map(fn($v) => (string) $v, $ids);
+		$this->assertNotSame($stringIds, $foundIds);
 
 	}
 
-	public function testWithWhere(): void
-	{
+	public function testWithWhere(): void {
 		$records = RecordIntegerFactory::createMany(10);
 
 		/** @var EntityManagerInterface $em */
@@ -47,105 +49,114 @@ class DoctrineQueryLoaderTest extends AssetMapperKernelTestCase {
 
 		// očakávané ID podľa vygenerovaného mena z factory
 		$expectedIds = array_values(array_map(
-				fn(RecordInteger $r) => $r->getId(),
-				array_filter($records, fn(RecordInteger $r) => $r->getName() === 'keep', ARRAY_FILTER_USE_BOTH)
+			fn(RecordInteger $r) => $r->getId(),
+			array_filter($records, fn(RecordInteger $r) => $r->getName() === 'keep', ARRAY_FILTER_USE_BOTH)
 		));
 
 		$loader = new DoctrineQueryLoader();
 
 		$qb = $em->createQueryBuilder()
-				->select('i')
-				->from(RecordInteger::class, 'i')
-				->where('i.name = :name')
-				->setParameter('name', 'keep')
-				->orderBy('i.id', 'DESC')
-				->setFirstResult(2)
-				->setMaxResults(3);
+			->select('i')
+			->from(RecordInteger::class, 'i')
+			->where('i.name = :name')
+			->setParameter('name', 'keep')
+			->orderBy('i.id', 'DESC')
+			->setFirstResult(2)
+			->setMaxResults(3);
 
 		$query = $qb->getQuery();
 
 		$this->assertTrue($loader->supports($query));
-		$this->assertEquals(count($expectedIds), $loader->getTotalCount($query));
+		$this->assertSame(count($expectedIds), $loader->getTotalCount($query));
 		sort($expectedIds);
 
 		$foundIds = $loader->loadAllIdentifiers(null, $query, 'id');
 		sort($foundIds);
 
-		$this->assertEquals($expectedIds, $foundIds);
+		$this->assertSame($expectedIds, $foundIds);
+
+		// typovo striktne - string vs int
+		$stringIds = array_map(fn($v) => (string) $v, $expectedIds);
+		$this->assertNotSame($stringIds, $foundIds);
 	}
 
-	public function testWithJoin(): void
-	{       /** @var EntityManagerInterface $em */
-        $em = self::getContainer()->get('doctrine')->getManager();
+	public function testWithJoin(): void {
+		/** @var EntityManagerInterface $em */
+		$em = self::getContainer()->get('doctrine')->getManager();
 
-        // vytvor pár kategórií s názvom "A" (nemusia byť priradené žiadnemu záznamu)
-        TestCategoryFactory::createOne(['name' => 'A']);
-        TestCategoryFactory::createOne(['name' => 'A']);
+		// vytvor pár kategórií s názvom "A" (nemusia byť priradené žiadnemu záznamu)
+		TestCategoryFactory::createOne(['name' => 'A']);
+		TestCategoryFactory::createOne(['name' => 'A']);
 
-        $records = RecordIntegerFactory::createMany(10);
-        $loader = new DoctrineQueryLoader();
+		$records = RecordIntegerFactory::createMany(10);
+		$loader  = new DoctrineQueryLoader();
 
-        // očakávané ID podľa kategórie s názvom A
-        $expectedIds = array_values(array_map(
-            fn(RecordInteger $r) => $r->getId(),
-            array_filter($records, fn(RecordInteger $r) => $r->getCategory() && $r->getCategory()->getName() === 'A', ARRAY_FILTER_USE_BOTH)
-        ));
+		// očakávané ID podľa kategórie s názvom A
+		$expectedIds = array_values(array_map(
+			fn(RecordInteger $r) => $r->getId(),
+			array_filter($records, fn(RecordInteger $r) => $r->getCategory() && $r->getCategory()->getName() === 'A', ARRAY_FILTER_USE_BOTH)
+		));
 
-        $qb = $em->createQueryBuilder()
-            ->select('i')
-            ->from(RecordInteger::class, 'i')
-            ->join('i.category', 'c')
-            ->where('c.name = :name')
-            ->setParameter('name', 'A')
-            ->orderBy('i.id', 'DESC')
-            ->setFirstResult(1)
-            ->setMaxResults(2);
+		$qb = $em->createQueryBuilder()
+			->select('i')
+			->from(RecordInteger::class, 'i')
+			->join('i.category', 'c')
+			->where('c.name = :name')
+			->setParameter('name', 'A')
+			->orderBy('i.id', 'DESC')
+			->setFirstResult(1)
+			->setMaxResults(2);
 
-        $query = $qb->getQuery();
+		$query = $qb->getQuery();
 
-        $this->assertTrue($loader->supports($query));
-        $this->assertEquals(count($expectedIds), $loader->getTotalCount($query));
+		$this->assertTrue($loader->supports($query));
+		$this->assertSame(count($expectedIds), $loader->getTotalCount($query));
 
-        $foundIds = $loader->loadAllIdentifiers(null, $query, 'id');
-        sort($foundIds);
+		$foundIds = $loader->loadAllIdentifiers(null, $query, 'id');
+		sort($foundIds);
 
-        $this->assertEquals($expectedIds, $foundIds);
-    }
+		$this->assertSame($expectedIds, $foundIds);
 
-    public function testGetCacheKeyStableAndDistinct(): void
-    {
-        RecordIntegerFactory::createMany(3);
+		// typovo striktne - string vs int (iba ak nie je výsledok prázdny)
+		if (count($expectedIds) > 0) {
+			$stringIds = array_map(fn($v) => (string) $v, $expectedIds);
+			$this->assertNotSame($stringIds, $foundIds);
+		}
+	}
 
-        $loader = new DoctrineQueryLoader();
+	public function testGetCacheKeyStableAndDistinct(): void {
+		RecordIntegerFactory::createMany(3);
 
-        /** @var EntityManagerInterface $em */
-        $em = self::getContainer()->get('doctrine')->getManager();
+		$loader = new DoctrineQueryLoader();
 
-        $qb1 = $em->createQueryBuilder()
-            ->select('i')
-            ->from(RecordInteger::class, 'i')
-            ->where('i.name = :name')
-            ->setParameter('name', 'keep');
-        $q1 = $qb1->getQuery();
+		/** @var EntityManagerInterface $em */
+		$em = self::getContainer()->get('doctrine')->getManager();
 
-        $qb2 = $em->createQueryBuilder()
-            ->select('i')
-            ->from(RecordInteger::class, 'i')
-            ->where('i.name = :name')
-            ->setParameter('name', 'keep');
-        $q2 = $qb2->getQuery();
+		$qb1 = $em->createQueryBuilder()
+			->select('i')
+			->from(RecordInteger::class, 'i')
+			->where('i.name = :name')
+			->setParameter('name', 'keep');
+		$q1  = $qb1->getQuery();
 
-        // Rovnaká filtrácia → rovnaký cache key
-        $k1a = $loader->getCacheKey($q1);
-        $k1b = $loader->getCacheKey($q1);
-        $k2  = $loader->getCacheKey($q2);
-        $this->assertSame($k1a, $k1b);
-        $this->assertSame($k1a, $k2);
+		$qb2 = $em->createQueryBuilder()
+			->select('i')
+			->from(RecordInteger::class, 'i')
+			->where('i.name = :name')
+			->setParameter('name', 'keep');
+		$q2  = $qb2->getQuery();
 
-        // Zmena parametra → iný cache key
-        $qb2->setParameter('name', 'drop');
-        $q3 = $qb2->getQuery();
-        $k3 = $loader->getCacheKey($q3);
-        $this->assertNotSame($k2, $k3);
-    }
+		// Rovnaká filtrácia → rovnaký cache key
+		$k1a = $loader->getCacheKey($q1);
+		$k1b = $loader->getCacheKey($q1);
+		$k2  = $loader->getCacheKey($q2);
+		$this->assertSame($k1a, $k1b);
+		$this->assertSame($k1a, $k2);
+
+		// Zmena parametra → iný cache key
+		$qb2->setParameter('name', 'drop');
+		$q3 = $qb2->getQuery();
+		$k3 = $loader->getCacheKey($q3);
+		$this->assertNotSame($k2, $k3);
+	}
 }

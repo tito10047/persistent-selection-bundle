@@ -9,23 +9,21 @@ use Tito10047\PersistentSelectionBundle\Normalizer\IdentifierNormalizerInterface
 /**
  * Loader responsible for extracting identifiers from Doctrine Collection objects.
  */
-final class DoctrineCollectionLoader implements IdentityLoaderInterface
-{
+final class DoctrineCollectionLoader implements IdentityLoaderInterface {
+
 	private const DEFAULT_IDENTIFIER_PATH = 'id';
 
 	/**
 	 * @inheritDoc
 	 */
-	public function supports(mixed $source): bool
-	{
+	public function supports(mixed $source): bool {
 		return $source instanceof Collection;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function getTotalCount(mixed $source): int
-	{
+	public function getTotalCount(mixed $source): int {
 		if (!$this->supports($source)) {
 			throw new InvalidArgumentException('Source must be a Doctrine Collection.');
 		}
@@ -39,8 +37,7 @@ final class DoctrineCollectionLoader implements IdentityLoaderInterface
 	 *
 	 * @inheritDoc
 	 */
-	public function loadAllIdentifiers(?IdentifierNormalizerInterface $resolver, mixed $source, ?string $identifierPath): array
-	{
+	public function loadAllIdentifiers(?IdentifierNormalizerInterface $resolver, mixed $source, ?string $identifierPath): array {
 		if (!$this->supports($source)) {
 			throw new InvalidArgumentException('Source must be a Doctrine Collection.');
 		}
@@ -73,8 +70,7 @@ final class DoctrineCollectionLoader implements IdentityLoaderInterface
 	/**
 	 * Produce a deterministic scalar/array representation for hashing.
 	 */
-	private static function normalizeValue(mixed $value): mixed
-	{
+	private static function normalizeValue(mixed $value): mixed {
 		if (is_scalar($value) || $value === null) {
 			return $value;
 		}
@@ -97,6 +93,6 @@ final class DoctrineCollectionLoader implements IdentityLoaderInterface
 			return ['__class__' => get_class($value), 'props' => self::normalizeValue($vars)];
 		}
 		// Fallback – stringify
-		return (string)$value;
+		return (string) $value;
 	}
 }
