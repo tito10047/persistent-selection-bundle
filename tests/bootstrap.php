@@ -1,8 +1,8 @@
 <?php
 
-use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Dotenv\Dotenv;
 use Tito10047\PersistentSelectionBundle\Tests\App\Kernel;
 
 // needed to avoid encoding issues when running tests on different platforms
@@ -22,9 +22,9 @@ $application->setAutoExit(false);
 $application->setCatchExceptions(false);
 
 $runCommand = function (string $name, array $options = []) use ($application) {
-    $input = new ArrayInput(array_merge(['command' => $name], $options));
-    $input->setInteractive(false);
-    $application->run($input);
+	$input = new ArrayInput(array_merge(['command' => $name], $options));
+	$input->setInteractive(false);
+	$application->run($input);
 };
 
 try {
@@ -32,9 +32,10 @@ try {
 		'--force'          => 1,
 		'--no-interaction' => true
 	]);
-}catch (\Doctrine\DBAL\Exception\ConnectionException){}
+} catch (\Doctrine\DBAL\Exception\ConnectionException) {
+}
 $runCommand('doctrine:database:create', [
-    '--no-interaction' => true
+	'--no-interaction' => true
 ]);
 $runCommand('doctrine:schema:create');
 

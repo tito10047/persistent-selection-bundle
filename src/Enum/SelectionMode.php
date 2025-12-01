@@ -2,8 +2,8 @@
 
 namespace Tito10047\PersistentSelectionBundle\Enum;
 
-enum SelectionMode: string
-{
+enum SelectionMode: string {
+
 	/**
 	 * Default mode.
 	 * The stored identifiers represent the items that are explicitly selected.

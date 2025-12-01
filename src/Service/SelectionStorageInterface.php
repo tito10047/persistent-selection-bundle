@@ -9,8 +9,8 @@ interface SelectionStorageInterface {
 	 *
 	 * @return $this
 	 */
-	public function setSelection(string $cacheKey, array $ids, int|\DateInterval|null $ttl = null):static;
+	public function setSelection(string $cacheKey, array $ids, int|\DateInterval|null $ttl = null): static;
 
-	public function hasSelection(string $cacheKey):bool;
+	public function hasSelection(string $cacheKey): bool;
 
 }

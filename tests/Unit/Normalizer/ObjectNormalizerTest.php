@@ -5,76 +5,74 @@ namespace Tito10047\PersistentSelectionBundle\Tests\Unit\Normalizer;
 use PHPUnit\Framework\TestCase;
 use Tito10047\PersistentSelectionBundle\Normalizer\ObjectNormalizer;
 use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Entity\RecordInteger;
-use Tito10047\PersistentSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
 
-class ObjectNormalizerTest extends TestCase
-{
-    public function testSupports(): void
-    {
-        $normalizer = new ObjectNormalizer();
+class ObjectNormalizerTest extends TestCase {
 
-        $this->assertTrue($normalizer->supports(new \stdClass()));
-        $this->assertTrue($normalizer->supports(new RecordInteger()));
+	public function testSupports(): void {
+		$normalizer = new ObjectNormalizer();
 
-        $this->assertFalse($normalizer->supports(1));
-        $this->assertFalse($normalizer->supports('a'));
-        $this->assertFalse($normalizer->supports(1.23));
-        $this->assertFalse($normalizer->supports(true));
-        $this->assertFalse($normalizer->supports(null));
-        $this->assertFalse($normalizer->supports([]));
-    }
+		$this->assertTrue($normalizer->supports(new \stdClass()));
+		$this->assertTrue($normalizer->supports(new RecordInteger()));
 
-    public function testNormalizeReadsScalarViaGetter(): void
-    {
-        $normalizer = new ObjectNormalizer();
+		$this->assertFalse($normalizer->supports(1));
+		$this->assertFalse($normalizer->supports('a'));
+		$this->assertFalse($normalizer->supports(1.23));
+		$this->assertFalse($normalizer->supports(true));
+		$this->assertFalse($normalizer->supports(null));
+		$this->assertFalse($normalizer->supports([]));
+	}
 
-        $entity = (new RecordInteger())->setId(123)->setName('Foo');
+	public function testNormalizeReadsScalarViaGetter(): void {
+		$normalizer = new ObjectNormalizer();
 
-        $this->assertSame(123, $normalizer->normalize($entity, 'id'));
-        $this->assertSame('Foo', $normalizer->normalize($entity, 'name'));
-    }
+		$entity = (new RecordInteger())->setId(123)->setName('Foo');
 
-    public function testNormalizeReadsStringFromStringableProperty(): void
-    {
-        $normalizer = new ObjectNormalizer();
+		$this->assertSame(123, $normalizer->normalize($entity, 'id'));
+		$this->assertSame('Foo', $normalizer->normalize($entity, 'name'));
+	}
 
-        // object with public property that is stringable
-        $obj = new class {
-            public $value;
-            public function __construct()
-            {
-                $this->value = new class {
-                    public function __toString(): string { return 'STRINGABLE'; }
-                };
-            }
-        };
+	public function testNormalizeReadsStringFromStringableProperty(): void {
+		$normalizer = new ObjectNormalizer();
 
-        $this->assertSame('STRINGABLE', $normalizer->normalize($obj, 'value'));
-    }
+		// object with public property that is stringable
+		$obj = new class {
 
-    public function testNormalizeThrowsWhenPathNotReadable(): void
-    {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Cannot read identifier');
+			public $value;
 
-        $normalizer = new ObjectNormalizer();
-        $obj = new \stdClass();
-        // property does not exist
-        $normalizer->normalize($obj, 'unknown');
-    }
+			public function __construct() {
+				$this->value = new class {
 
-    public function testNormalizeThrowsWhenExtractedValueIsNotScalarOrStringable(): void
-    {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Extracted value is not a scalar');
+					public function __toString(): string { return 'STRINGABLE'; }
+				};
+			}
+		};
 
-        $normalizer = new ObjectNormalizer();
+		$this->assertSame('STRINGABLE', $normalizer->normalize($obj, 'value'));
+	}
 
-        $obj = new class {
-            public $value;
-            public function __construct() { $this->value = new \stdClass(); }
-        };
+	public function testNormalizeThrowsWhenPathNotReadable(): void {
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('Cannot read identifier');
 
-        $normalizer->normalize($obj, 'value');
-    }
+		$normalizer = new ObjectNormalizer();
+		$obj        = new \stdClass();
+		// property does not exist
+		$normalizer->normalize($obj, 'unknown');
+	}
+
+	public function testNormalizeThrowsWhenExtractedValueIsNotScalarOrStringable(): void {
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('Extracted value is not a scalar');
+
+		$normalizer = new ObjectNormalizer();
+
+		$obj = new class {
+
+			public $value;
+
+			public function __construct() { $this->value = new \stdClass(); }
+		};
+
+		$normalizer->normalize($obj, 'value');
+	}
 }

@@ -41,8 +41,8 @@ final class SelectionRuntime implements RuntimeExtensionInterface {
 			$name                                                     = strtolower(preg_replace('/([a-zA-Z])(?=[A-Z])/', '$1-', $name));
 			$attributes["data-{$this->controllerName}-{$name}-value"] = $value;
 		}
-		if ($controller){
-			$attributes["data-controller"]=$controller;
+		if ($controller) {
+			$attributes["data-controller"] = $controller;
 		}
 		$attributes = $this->mergeAttributes($myAttributes, $attributes);
 		if ($asArray) {

@@ -9,39 +9,36 @@ use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Support\TestLi
 /**
  * Jednoduchý testovací loader pre TestList wrapper.
  */
-class TestListLoader implements IdentityLoaderInterface
-{
-    public function supports(mixed $source): bool
-    {
-        return $source instanceof TestList;
-    }
+class TestListLoader implements IdentityLoaderInterface {
 
-    public function loadAllIdentifiers(?IdentifierNormalizerInterface $resolver, mixed $source, ?string $identifierPath): array
-    {
-        if (!$this->supports($source)) {
-            throw new \InvalidArgumentException('Source musí byť inštancia TestList.');
-        }
+	public function supports(mixed $source): bool {
+		return $source instanceof TestList;
+	}
 
-        if (!$resolver) {
-            throw new \InvalidArgumentException('Resolver (IdentifierNormalizerInterface) musí byť poskytnutý.');
-        }
+	public function loadAllIdentifiers(?IdentifierNormalizerInterface $resolver, mixed $source, ?string $identifierPath): array {
+		if (!$this->supports($source)) {
+			throw new \InvalidArgumentException('Source musí byť inštancia TestList.');
+		}
 
-        $ids = [];
-        foreach ($source->all() as $item) {
-            $ids[] = $resolver->normalize($item, $identifierPath);
-        }
+		if (!$resolver) {
+			throw new \InvalidArgumentException('Resolver (IdentifierNormalizerInterface) musí byť poskytnutý.');
+		}
 
-        return $ids;
-    }
+		$ids = [];
+		foreach ($source->all() as $item) {
+			$ids[] = $resolver->normalize($item, $identifierPath);
+		}
 
-    public function getTotalCount(mixed $source): int
-    {
-        if (!$this->supports($source)) {
-            throw new \InvalidArgumentException('Source musí byť inštancia TestList.');
-        }
+		return $ids;
+	}
 
-        return count($source->all());
-    }
+	public function getTotalCount(mixed $source): int {
+		if (!$this->supports($source)) {
+			throw new \InvalidArgumentException('Source musí byť inštancia TestList.');
+		}
+
+		return count($source->all());
+	}
 
 	public function getCacheKey(mixed $source): string {
 		if (!$this->supports($source)) {

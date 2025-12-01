@@ -2,7 +2,7 @@
 
 namespace Tito10047\PersistentSelectionBundle\Converter;
 
-class ObjectVarsConverter implements MetadataConverterInterface{
+class ObjectVarsConverter implements MetadataConverterInterface {
 
 	public function convertToStorable(object $metadataObject): array {
 		return get_object_vars($metadataObject);

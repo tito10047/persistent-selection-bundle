@@ -7,8 +7,8 @@ $_SERVER['APP_RUNTIME_OPTIONS'] = [
 	'project_dir' => dirname(__DIR__, 1)
 ];
 
-require_once dirname(__DIR__).'/../../../vendor/autoload_runtime.php';
+require_once dirname(__DIR__) . '/../../../vendor/autoload_runtime.php';
 
 return function (array $context) {
-    return new \Tito10047\PersistentSelectionBundle\Tests\App\Kernel("dev","AssetMapper/config");
+	return new \Tito10047\PersistentSelectionBundle\Tests\App\Kernel("dev", "AssetMapper/config");
 };

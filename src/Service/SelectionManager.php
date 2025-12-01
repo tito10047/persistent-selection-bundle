@@ -41,7 +41,7 @@ final class SelectionManager implements SelectionManagerInterface {
 		if (!$selection->hasSource($cacheKey)) {
 			$selection->registerSource($cacheKey,
 				$loader->loadAllIdentifiers($this->normalizer, $source, $this->identifierPath),
-				$ttl?? $this->ttl
+				$ttl ?? $this->ttl
 			);
 		}
 

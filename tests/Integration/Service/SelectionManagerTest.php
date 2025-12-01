@@ -4,74 +4,71 @@ namespace Tito10047\PersistentSelectionBundle\Tests\Integration\Service;
 
 use PHPUnit\Framework\Attributes\TestWith;
 use stdClass;
+use Tito10047\PersistentSelectionBundle\Enum\SelectionMode;
 use Tito10047\PersistentSelectionBundle\Exception\NormalizationFailedException;
 use Tito10047\PersistentSelectionBundle\Service\SelectionInterface;
 use Tito10047\PersistentSelectionBundle\Service\SelectionManagerInterface;
 use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\ServiceHelper;
-use Tito10047\PersistentSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
 use Tito10047\PersistentSelectionBundle\Tests\App\AssetMapper\Src\Support\TestList;
-use Tito10047\PersistentSelectionBundle\Enum\SelectionMode;
-use function Zenstruck\Foundry\object;
+use Tito10047\PersistentSelectionBundle\Tests\Integration\Kernel\AssetMapperKernelTestCase;
 
-class SelectionManagerTest extends AssetMapperKernelTestCase
-{
-    public function testGetSelectionAndSelectFlow(): void
-    {
-        $container = self::getContainer();
+class SelectionManagerTest extends AssetMapperKernelTestCase {
 
-        /** @var SelectionManagerInterface $manager */
-        $manager = $container->get('persistent_selection.manager.scalar');
-        $this->assertInstanceOf(SelectionManagerInterface::class, $manager);
+	public function testGetSelectionAndSelectFlow(): void {
+		$container = self::getContainer();
 
-        // Use the test normalizer that supports type "array" and requires identifierPath
-        $selection = $manager->getSelection('test_key');
-        $this->assertInstanceOf(SelectionInterface::class, $selection);
+		/** @var SelectionManagerInterface $manager */
+		$manager = $container->get('persistent_selection.manager.scalar');
+		$this->assertInstanceOf(SelectionManagerInterface::class, $manager);
 
-        // Initially nothing selected
-        $this->assertFalse($selection->isSelected( 1));
+		// Use the test normalizer that supports type "array" and requires identifierPath
+		$selection = $manager->getSelection('test_key');
+		$this->assertInstanceOf(SelectionInterface::class, $selection);
 
-        // Select single item and verify
-        $selection->select( 1);
-        $this->assertTrue($selection->isSelected(1));
+		// Initially nothing selected
+		$this->assertFalse($selection->isSelected(1));
 
-        // Select multiple
-        $selection->selectMultiple([
-            2,
-            3,
-        ]);
+		// Select single item and verify
+		$selection->select(1);
+		$this->assertTrue($selection->isSelected(1));
 
-        $this->assertTrue($selection->isSelected( 2));
-        $this->assertTrue($selection->isSelected( 3));
+		// Select multiple
+		$selection->selectMultiple([
+			2,
+			3,
+		]);
 
-        $ids = $selection->getSelectedIdentifiers();
-        sort($ids);
-        $this->assertSame([1, 2, 3], $ids);
+		$this->assertTrue($selection->isSelected(2));
+		$this->assertTrue($selection->isSelected(3));
 
-        // Unselect one and verify
-        $selection->unselect(2);
-        $this->assertFalse($selection->isSelected( 2));
+		$ids = $selection->getSelectedIdentifiers();
+		sort($ids);
+		$this->assertSame([1, 2, 3], $ids);
 
-        $ids = $selection->getSelectedIdentifiers();
-        sort($ids);
-        $this->assertSame([1, 3], $ids);
-    }
+		// Unselect one and verify
+		$selection->unselect(2);
+		$this->assertFalse($selection->isSelected(2));
 
-    public function testRegisterSourceThrowsWhenNoLoader(): void
-    {
-        $container = self::getContainer();
+		$ids = $selection->getSelectedIdentifiers();
+		sort($ids);
+		$this->assertSame([1, 3], $ids);
+	}
 
-        /** @var SelectionManagerInterface $manager */
-        $manager = $container->get('persistent_selection.manager.default');
-        $this->assertInstanceOf(SelectionManagerInterface::class, $manager);
+	public function testRegisterSourceThrowsWhenNoLoader(): void {
+		$container = self::getContainer();
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('No suitable loader found');
+		/** @var SelectionManagerInterface $manager */
+		$manager = $container->get('persistent_selection.manager.default');
+		$this->assertInstanceOf(SelectionManagerInterface::class, $manager);
 
-        // stdClass is not supported by any IdentityLoader in tests/app
-        $manager->registerSource('no_loader_key', new \stdClass());
-    }
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('No suitable loader found');
 
-	public function testAutoBindManager():void {
+		// stdClass is not supported by any IdentityLoader in tests/app
+		$manager->registerSource('no_loader_key', new \stdClass());
+	}
+
+	public function testAutoBindManager(): void {
 
 		$container = self::getContainer();
 
@@ -92,43 +89,42 @@ class SelectionManagerTest extends AssetMapperKernelTestCase
 		$manager->registerSource("array_key", $data);
 	}
 
-	#[TestWith(['default',[['id' => 1, 'name' => 'A']]])]
-	#[TestWith(['scalar',[['id' => 1, 'name' => 'A']]])]
-	#[TestWith(['array',[new stdClass()]])]
-	public function testThrowExceptionOnBadNormalizer($service,$data):void {
+	#[TestWith(['default', [['id' => 1, 'name' => 'A']]])]
+	#[TestWith(['scalar', [['id' => 1, 'name' => 'A']]])]
+	#[TestWith(['array', [new stdClass()]])]
+	public function testThrowExceptionOnBadNormalizer($service, $data): void {
 
 		$container = self::getContainer();
 
 		/** @var SelectionManagerInterface $manager */
-		$manager = $container->get('persistent_selection.manager.'.$service);
+		$manager = $container->get('persistent_selection.manager.' . $service);
 
 		$this->expectException(NormalizationFailedException::class);
 		$manager->registerSource("array_key_2", $data);
 	}
 
-    public function testRegisterSourceLoadsAllInExcludeMode(): void
-    {
-        $container = self::getContainer();
+	public function testRegisterSourceLoadsAllInExcludeMode(): void {
+		$container = self::getContainer();
 
-        /** @var SelectionManagerInterface $manager */
-        $manager = $container->get('persistent_selection.manager.array');
-        $this->assertInstanceOf(SelectionManagerInterface::class, $manager);
+		/** @var SelectionManagerInterface $manager */
+		$manager = $container->get('persistent_selection.manager.array');
+		$this->assertInstanceOf(SelectionManagerInterface::class, $manager);
 
-        $data = [
-            ['id' => 1, 'name' => 'A'],
-            ['id' => 2, 'name' => 'B'],
-            ['id' => 3, 'name' => 'C'],
-        ];
-        $list = new TestList($data);
+		$data = [
+			['id' => 1, 'name' => 'A'],
+			['id' => 2, 'name' => 'B'],
+			['id' => 3, 'name' => 'C'],
+		];
+		$list = new TestList($data);
 
-        $selection = $manager->registerSource('reg_key', $list);
-        $this->assertInstanceOf(SelectionInterface::class, $selection);
+		$selection = $manager->registerSource('reg_key', $list);
+		$this->assertInstanceOf(SelectionInterface::class, $selection);
 
-        // After registerSource -> rememberAll() should store all ids in ALL context.
-        // Switching to EXCLUDE mode means: all are selected unless explicitly excluded.
-        $selection->setMode(SelectionMode::EXCLUDE);
-        $ids = $selection->getSelectedIdentifiers();
-        sort($ids);
-        $this->assertSame([1, 2, 3], $ids);
-    }
+		// After registerSource -> rememberAll() should store all ids in ALL context.
+		// Switching to EXCLUDE mode means: all are selected unless explicitly excluded.
+		$selection->setMode(SelectionMode::EXCLUDE);
+		$ids = $selection->getSelectedIdentifiers();
+		sort($ids);
+		$this->assertSame([1, 2, 3], $ids);
+	}
 }
